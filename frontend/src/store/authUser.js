@@ -11,7 +11,11 @@ export const useAuthStore = create((set) => ({
 	signup: async (credentials) => {
 		set({ isSigningUp: true });
 		try {
-			const response = await axios.post("/api/v1/auth/signup", credentials);
+			const API_URL = "http://localhost:5000/api/v1/auth"; 
+
+const response = await axios.post(`${API_URL}/signup`, credentials, {
+  withCredentials: true, 
+});
 			set({ user: response.data.user, isSigningUp: false });
 			toast.success("Account created successfully");
 		} catch (error) {
@@ -48,7 +52,7 @@ export const useAuthStore = create((set) => ({
 			set({ user: response.data.user, isCheckingAuth: false });
 		} catch (error) {
 			set({ isCheckingAuth: false, user: null });
-			// toast.error(error.response.data.message || "An error occurred");
+			toast.error(error.response.data.message || "An error occurred");
 		}
 	},
 }));
