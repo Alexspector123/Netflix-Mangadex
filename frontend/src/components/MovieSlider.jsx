@@ -18,7 +18,10 @@ const MovieSlider = ({ category }) => {
 
 	useEffect(() => {
 		const getContent = async () => {
-			const res = await axios.get(`/api/v1/${contentType}/${category}`);
+			// Thêm withCredentials để server nhận được cookie (JWT)
+			const res = await axios.get(`/api/v1/${contentType}/${category}`, {
+				withCredentials: true,
+			});
 			setContent(res.data.content);
 		};
 
@@ -27,11 +30,20 @@ const MovieSlider = ({ category }) => {
 
 	const scrollLeft = () => {
 		if (sliderRef.current) {
-			sliderRef.current.scrollBy({ left: -sliderRef.current.offsetWidth, behavior: "smooth" });
+			sliderRef.current.scrollBy({
+				left: -sliderRef.current.offsetWidth,
+				behavior: "smooth",
+			});
 		}
 	};
+
 	const scrollRight = () => {
-		sliderRef.current.scrollBy({ left: sliderRef.current.offsetWidth, behavior: "smooth" });
+		if (sliderRef.current) {
+			sliderRef.current.scrollBy({
+				left: sliderRef.current.offsetWidth,
+				behavior: "smooth",
+			});
+		}
 	};
 
 	return (
@@ -63,8 +75,7 @@ const MovieSlider = ({ category }) => {
 				<>
 					<button
 						className='absolute top-1/2 -translate-y-1/2 left-5 md:left-24 flex items-center justify-center
-            size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10
-            '
+							size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10'
 						onClick={scrollLeft}
 					>
 						<ChevronLeft size={24} />
@@ -72,8 +83,7 @@ const MovieSlider = ({ category }) => {
 
 					<button
 						className='absolute top-1/2 -translate-y-1/2 right-5 md:right-24 flex items-center justify-center
-            size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10
-            '
+							size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10'
 						onClick={scrollRight}
 					>
 						<ChevronRight size={24} />
@@ -83,4 +93,5 @@ const MovieSlider = ({ category }) => {
 		</div>
 	);
 };
+
 export default MovieSlider;

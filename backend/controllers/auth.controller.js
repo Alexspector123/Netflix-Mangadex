@@ -1,6 +1,6 @@
-import { User } from '../models/user.model.js';
-import bcryptjs, { genSalt } from 'bcryptjs';
-import { generateTokenAndSetCookie } from '../utils/generateToken.js';
+import { User } from "../models/user.model.js";
+import bcryptjs from "bcryptjs";
+import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 
 export async function signup(req, res) {
     try {
@@ -29,30 +29,35 @@ export async function signup(req, res) {
         const existingUserByUsername = await User.findOne({username: username});
         if(existingUserByUsername) {
             return res.status(400).json({success: false, message: "Already exist account with this username"});
-        } 
+        }
 
-        //Hashed password before safe to the database
+        //Hash password before saving
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(password, salt);
 
         const PROFILE_PICS = ["/avatar1.png", "/avatar2.png", "avatar3.png"];
         const image = PROFILE_PICS[Math.floor(Math.random() * PROFILE_PICS.length)];
 
-        //Create new user 
+        //Create new user
         const newUser = new User({
             email: email,
             password: hashedPassword,
-            username:username,
-            image:image,
+            username: username,
+            image: image,
         });
+
         if(newUser) {
+            // Generate token & set cookie
             generateTokenAndSetCookie(newUser._id, res);
             await newUser.save();
-            res.status(201).json({success: true, user: {
-                ...newUser._doc,
-                password:""
-            },});
-        } 
+            res.status(201).json({
+                success: true,
+                user: {
+                    ...newUser._doc,
+                    password: "",
+                },
+            });
+        }
     } catch (error) {
         console.log("Error in signup controller", error.message);
         res.status(500).json({success: false, message: "Internal server error"});
@@ -78,11 +83,16 @@ export async function login(req, res) {
             return res.status(400).json({success: false, message: "Invalid credentials"});
         }
 
+        // Generate token & set cookie
         generateTokenAndSetCookie(user._id, res);
-        res.status(200).json({success: true, user: {
-            ...newUser._doc,
-            password:""
-        },});
+
+        res.status(200).json({
+            success: true,
+            user: {
+                ...user._doc,
+                password: "",
+            },
+        });
     } catch (error) {
         console.log("Error in login controller", error.message);
         res.status(500).json({success: false, message: "Internal server error"});
