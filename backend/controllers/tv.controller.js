@@ -54,13 +54,14 @@ export async function getSimilarTVs(req, res) {
 }
 
 export async function getTVsByCategory(req, res) {
-    const category = req.params;
+    const { category } = req.params;
     try {
-        const data = await fetchFromTMDB(`https://api.themoviedb.org/3/tv/${category}?language=en-US&page=1`);
-
-        res.status(200).json({success: true, content: data.results});
-
+        const data = await fetchFromTMDB(
+          `https://api.themoviedb.org/3/tv/${category}?language=en-US&page=1`
+        );
+        res.status(200).json({ success: true, content: data.results });
     } catch (error) {
-        res.status(500).json({success: false, message: "Internal Server Error"});
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 }
