@@ -1,4 +1,5 @@
 import { fetchFromTMDB } from "../services/tmdb.service.js";
+import { User } from "../models/user.model.js";
 
 export async function searchPerson(req, res) {
     const { query } = req.params;
@@ -102,3 +103,29 @@ export async function removeItemFromSearchHistory(req, res) {
         res.status(500).json({success: false, message: "Internal Server Error"});
     }
 }
+
+export async function getFavouritesHistory(req, res) {
+    try {
+        res.status(200).json({success: true, content: req.user.favourites});
+    } catch (error) {
+        res.status(500).json({success: false, message: "Internal Server Error"});
+    }
+}
+
+export async function removeItemFromFavouritesHistory(req, res) {
+    let { id } = req.params;
+    id = parseInt(id);
+    
+    try {
+        await User.findByIdAndUpdate(req.user._id, {
+            $pull: {
+                favourites: {id: id},
+            }, 
+        });
+        res.status(200).json({success: true, message: "Item removed from favourite history"});
+    } catch (error) {
+        console.log("Error in remove item from favourite history controller: " + error.message);
+        res.status(500).json({success: false, message: "Internal Server Error"});
+    }
+}
+

@@ -22,7 +22,11 @@ const userSchema = mongoose.Schema({
     searchHistory: {
         type: Array,
         default: [],
-    }
+    },
+    favourites: {
+        type: Array,
+        default: [],
+    },
 });
 
 export const User = mongoose.model('User', userSchema);
