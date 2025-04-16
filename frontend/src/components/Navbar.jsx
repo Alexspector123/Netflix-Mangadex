@@ -14,8 +14,8 @@ import {
   X,
   User
 } from "lucide-react";
-import { useAuthStore } from "../store/authUser";
-import { useContentStore } from "../store/content";
+import { useAuthStore } from "../store/authUser.js";
+import { useContentStore } from "../store/content.js";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -58,7 +58,6 @@ const Navbar = () => {
                 <button
                   onClick={() => {
                     setContentType("movie");
-                    window.location.href = "/";
                   }}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-800 rounded text-left transition-colors"
                 >
@@ -68,7 +67,6 @@ const Navbar = () => {
                 <button
                   onClick={() => {
                     setContentType("tv");
-                    window.location.href = "/";
                   }}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-800 rounded text-left transition-colors"
                 >
@@ -118,7 +116,7 @@ const Navbar = () => {
           </div>
           
           <div className="relative group">
-            <Link to="/user">
+            <Link to="/profile">
               <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-transparent hover:border-red-500 transition-all">
                 <img src={user.image} alt="Avatar" className="h-full w-full object-cover" />
               </div>

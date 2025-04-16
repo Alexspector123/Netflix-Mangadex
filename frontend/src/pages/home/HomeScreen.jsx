@@ -1,16 +1,40 @@
 import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
-import { Info, Play } from "lucide-react";
+import { Info, Play, CirclePlus } from "lucide-react";
 import useGetTrendingContent from "../../hooks/useGetTrendingContent";
 import { MOVIE_CATEGORIES, ORIGINAL_IMG_BASE_URL, TV_CATEGORIES } from "../../utils/constants.js";
 import { useContentStore } from "../../store/content.js";
 import MovieSlider from "../../components/MovieSlider";
 import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const HomeScreen = () => {
 	const { trendingContent } = useGetTrendingContent();
 	const { contentType } = useContentStore();
 	const [imgLoading, setImgLoading] = useState(true);
+
+	const handleAddToFavourites = async () => {
+		try {
+			const payload = {
+				id: trendingContent?.id,
+				image: trendingContent?.poster_path || trendingContent?.backdrop_path,
+				title: trendingContent?.title || trendingContent?.name,
+				type: contentType,
+			};
+			console.log(contentType);
+			await toast.promise(
+				axios.post("/api/v1/search/favourite", payload),
+				{
+					loading: "Adding to favourites...",
+					success: "Added to favourites!",
+					error: "Failed to add to favourites",
+				}
+			);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	if (!trendingContent)
 		return (
@@ -67,7 +91,7 @@ const HomeScreen = () => {
 					<div className='flex mt-8'>
 						<Link
 							to={`/watch/${trendingContent?.id}`}
-							className='bg-white hover:bg-white/80 text-black font-bold py-2 px-4 rounded mr-4 flex
+							className='bg-white hover:bg-red-500 text-black font-bold py-2 px-4 rounded mr-4 flex
 							 items-center'
 						>
 							<Play className='size-6 mr-2 fill-black' />
@@ -76,11 +100,17 @@ const HomeScreen = () => {
 
 						<Link
 							to={`/watch/${trendingContent?.id}`}
-							className='bg-gray-500/70 hover:bg-gray-500 text-white py-2 px-4 rounded flex items-center'
+							className='bg-gray-500/70 hover:bg-red-500 hover:text-black text-white py-2 px-4 rounded flex items-center'
 						>
 							<Info className='size-6 mr-2' />
 							More Info
 						</Link>
+						<button
+							onClick={handleAddToFavourites}
+							className='text-white py-2 px-4 rounded flex items-center hover:text-red-500 transition-colors'
+						>
+							<CirclePlus className='size-6 mr-2' />
+						</button>
 					</div>
 				</div>
 			</div>

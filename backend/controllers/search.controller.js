@@ -104,13 +104,34 @@ export async function removeItemFromSearchHistory(req, res) {
     }
 }
 
-export async function getFavouritesHistory(req, res) {
+export const clearSearchHistory = async (req, res) => {
     try {
-        res.status(200).json({success: true, content: req.user.favourites});
-    } catch (error) {
-        res.status(500).json({success: false, message: "Internal Server Error"});
+        await User.findByIdAndUpdate(req.user._id, {
+            $set: {
+                searchHistory: [],
+            },
+        });
+        res.status(200).json({ success: true, message: "All search history cleared" });
+    } catch (err) {
+        console.error("Error clearing history:", err);
+        res.status(500).json({ success: false, error: "Failed to clear history" });
     }
 }
+
+export async function getFavouritesHistory(req, res) {
+    try {
+      const { searchType } = req.query;
+      let favourites = req.user.favourites || [];
+  
+      if (searchType === "movie" || searchType === "tv") {
+        favourites = favourites.filter(item => item.searchType === searchType);
+      }
+  
+      res.status(200).json({ success: true, content: favourites });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+  }
 
 export async function removeItemFromFavouritesHistory(req, res) {
     let { id } = req.params;
@@ -129,3 +150,51 @@ export async function removeItemFromFavouritesHistory(req, res) {
     }
 }
 
+export async function addToFavourites(req, res) {
+	const { id, image, title, type } = req.body;
+
+	if (!id || !title || !type) {
+		return res.status(400).json({ success: false, message: "Missing fields" });
+	}
+
+	try {
+		// Check if this item already exists in favourites
+		const user = await User.findById(req.user._id);
+		const exists = user.favourites.some((item) => item.id === id);
+
+		if (exists) {
+			return res.status(200).json({ success: true, message: "Already in favourites" });
+		}
+
+		await User.findByIdAndUpdate(req.user._id, {
+			$push: {
+				favourites: {
+					id: id,
+					image: image,
+					title: title,
+					searchType: type, // movie / tv / person
+					createdAt: new Date(),
+				},
+			},
+		});
+
+		res.status(200).json({ success: true, message: "Added to favourites" });
+	} catch (error) {
+		console.log("Error in addToFavourites controller: ", error.message);
+		res.status(500).json({ success: false, message: "Internal Server Error" });
+	}
+}
+
+export const clearFavouriteHistory = async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user._id, {
+            $set: {
+                favourites: [],
+            },
+        });
+        res.status(200).json({ success: true, message: "All search history cleared" });
+    } catch (err) {
+        console.error("Error clearing history:", err);
+        res.status(500).json({ success: false, error: "Failed to clear history" });
+    }
+}

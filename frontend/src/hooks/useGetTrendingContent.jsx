@@ -10,6 +10,7 @@ const useGetTrendingContent = () => {
 		const getTrendingContent = async () => {
 			try {
 				const res = await axios.get(`/api/v1/${contentType}/trending`);
+				console.log(contentType, res.data.content);
 				setTrendingContent(res.data.content);
 			} catch (err) {
 				console.error("❌ Failed to fetch trending content:", err.message);

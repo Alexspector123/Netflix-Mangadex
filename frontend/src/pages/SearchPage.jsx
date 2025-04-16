@@ -37,7 +37,7 @@ const SearchPage = () => {
 	return (
 		<div className='bg-black min-h-screen text-white'>
 			<Navbar />
-			<div className='container mx-auto px-4 py-8'>
+			<div className='container mx-auto px-4 py-20'>
 				<div className='flex justify-center gap-3 mb-4'>
 					<button
 						className={`py-2 px-4 rounded ${
