@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { Info, Play } from "lucide-react";
 import useGetTrendingContent from "../../hooks/useGetTrendingContent";
-import { MOVIE_CATEGORIES, ORIGINAL_IMG_BASE_URL, TV_CATEGORIES } from "../../utils/constants";
-import { useContentStore } from "../../store/content";
+import { MOVIE_CATEGORIES, ORIGINAL_IMG_BASE_URL, TV_CATEGORIES } from "../../utils/constants.js";
+import { useContentStore } from "../../store/content.js";
 import MovieSlider from "../../components/MovieSlider";
 import { useState } from "react";
 

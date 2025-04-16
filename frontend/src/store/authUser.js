@@ -2,7 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { create } from "zustand";
 
-const API_URL = "http://localhost:5000/api/v1/auth";
+const API_URL = "/api/v1/auth";
 
 export const useAuthStore = create((set) => ({
 	user: null,

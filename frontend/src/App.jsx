@@ -14,7 +14,8 @@ import NotFoundPage from "./pages/404";
 
 function App() {
 	const { user, isCheckingAuth, authCheck } = useAuthStore();
-
+	console.log("auth user is here: ", user);
+	
 	useEffect(() => {
 		authCheck();
 	}, [authCheck]);
