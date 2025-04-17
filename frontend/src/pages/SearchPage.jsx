@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useContentStore } from "../store/content";
 import Navbar from "../components/Navbar";
 import { Search } from "lucide-react";
@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { ORIGINAL_IMG_BASE_URL } from "../utils/constants";
 import { Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
 	const [activeTab, setActiveTab] = useState("movie");
@@ -13,26 +14,45 @@ const SearchPage = () => {
 
 	const [results, setResults] = useState([]);
 	const { setContentType } = useContentStore();
+	const location = useLocation();
+	const navigate = useNavigate();
+	const queryParams = new URLSearchParams(location.search);
+    const query = queryParams.get("query") || "";
 
-	const handleTabClick = (tab) => {
+
+	useEffect(() => {
+		setSearchTerm(query);
+	  }, [query]);
+	
+	useEffect(() => {
+		const fetchResults = async () => {
+		  if (!query) return;
+		  try {
+			const res = await axios.get(`/api/v1/search/${activeTab}/${query}`);
+			setResults(res.data.content);
+		  } catch (error) {
+			if (error.response?.status === 404) {
+			  toast.error("Nothing found, make sure you are searching under the right category");
+			} else {
+			  toast.error("An error occurred, please try again later");
+			}
+		  }
+		};
+	
+		fetchResults();
+	  }, [query, activeTab]);
+	
+	  const handleTabClick = (tab) => {
 		setActiveTab(tab);
 		tab === "movie" ? setContentType("movie") : setContentType("tv");
 		setResults([]);
-	};
-
-	const handleSearch = async (e) => {
+	  };
+	
+	  const handleSearch = (e) => {
 		e.preventDefault();
-		try {
-			const res = await axios.get(`/api/v1/search/${activeTab}/${searchTerm}`);
-			setResults(res.data.content);
-		} catch (error) {
-			if (error.response.status === 404) {
-				toast.error("Nothing found, make sure you are searching under the right category");
-			} else {
-				toast.error("An error occurred, please try again later");
-			}
-		}
-	};
+		if (!searchTerm.trim()) return;
+		navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
+	  };
 
 	return (
 		<div className='bg-black min-h-screen text-white'>
