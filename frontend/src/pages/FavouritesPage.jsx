@@ -2,8 +2,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { SMALL_IMG_BASE_URL } from "../utils/constants";
-import { Trash, Clock, Heart, Search, Film, Tv, Calendar, X, Filter, ChevronDown, Eye } from "lucide-react";
+import { Trash, Heart, Clock, Search, Film, Tv, Calendar, X, Filter, ChevronDown, Eye } from "lucide-react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 
 function formatDate(dateString) {
@@ -27,6 +28,7 @@ const FavouritesPage = () => {
   const [filter, setFilter] = useState("all");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const navigate = useNavigate();   
 
   useEffect(() => {
     const getFavouritesHistory = async () => {
@@ -81,9 +83,7 @@ const FavouritesPage = () => {
   };
 
   const handleCardClick = (entry) => {
-    // Navigate to details page or show details modal
-    console.log("Viewing details for:", entry.title);
-    // window.location.href = `/${entry.searchType}/${entry.id}`;
+    navigate(`/watch/${entry.id}`); 
   };
 
   const filteredItems = filter === "all"
@@ -114,7 +114,7 @@ const FavouritesPage = () => {
         {/* Header with filters and edit button */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Heart className="size-7 text-white" fill="currentColor" />
+            <Clock className="size-7 text-white" />
             <h1 className="text-3xl font-bold">My Favourites</h1>
           </div>
 
@@ -158,21 +158,11 @@ const FavouritesPage = () => {
 
             {/* Edit/Delete toggle */}
             <button
-              className={`px-4 py-2 rounded-md transition-colors flex items-center gap-2 ${isDeleteMode ? "bg-red-600 hover:bg-red-700" : "bg-gray-800 hover:bg-gray-700"
-                }`}
-              onClick={() => setIsDeleteMode(!isDeleteMode)}
+              className= "px-4 py-2 rounded-md transition-colors flex items-center gap-2 bg-gray-800 hover:bg-gray-700"
+              onClick={() => handleDeleteAll()}
             >
-              {isDeleteMode ? (
-                <>
-                  <X size={16} />
-                  <span>Cancel</span>
-                </>
-              ) : (
-                <>
-                  <Trash size={16} />
-                  <span>Edit</span>
-                </>
-              )}
+              <Trash size={16} />
+              <span>Delete All</span>
             </button>
           </div>
         </div>
