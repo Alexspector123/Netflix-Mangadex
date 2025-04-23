@@ -13,6 +13,7 @@ import SearchHistoryPage from "./pages/SearchHistoryPage";
 import FavouritesPage from "./pages/FavouritesPage";
 import NotFoundPage from "./pages/404";
 import Profile from "./pages/Profile";
+import VipPage from "./pages/VipPage";
 
 function App() {
 	const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -44,6 +45,7 @@ function App() {
 				<Route path='/history' element={user ? <SearchHistoryPage /> : <Navigate to={"/login"} />} />
 				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/login"} />} />
 				<Route path='/*' element={<NotFoundPage />} />
+                <Route path='/register-vip' element={user ? <VipPage /> : <Navigate to={"/login"} />} />
 			</Routes>
 			<Footer />
 

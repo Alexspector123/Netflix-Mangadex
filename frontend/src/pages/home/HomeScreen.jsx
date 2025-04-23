@@ -3,30 +3,31 @@ import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { Info, Play, CirclePlus } from "lucide-react";
 import useGetTrendingContent from "../../hooks/useGetTrendingContent";
-import {
-  MOVIE_CATEGORIES,
-  ORIGINAL_IMG_BASE_URL,
-  TV_CATEGORIES,
-} from "../../utils/constants.js";
+import { MOVIE_CATEGORIES, ORIGINAL_IMG_BASE_URL, TV_CATEGORIES } from "../../utils/constants.js";
 import { useContentStore } from "../../store/content.js";
 import MovieSlider from "../../components/MovieSlider";
 import axios from "axios";
 import toast from "react-hot-toast";
+import AdPopup from "../../components/AdPopup"; // Import quảng cáo
 
 const HomeScreen = () => {
   const { trendingContent } = useGetTrendingContent();
   const { contentType } = useContentStore();
   const [imgLoading, setImgLoading] = useState(true);
   const [isFavourite, setIsFavourite] = useState(false);
+  const [showVipAd, setShowVipAd] = useState(false);  // Quản lý popup quảng cáo
 
-  /**
-   * Reset trạng thái favourite mỗi khi:
-   *  • đổi nội dung trending (movie ➜ tv hoặc ngược lại)
-   *  • refresh trang
-   */
   useEffect(() => {
     setIsFavourite(false);
   }, [trendingContent, contentType]);
+
+  useEffect(() => {
+    // Kiểm tra nếu user đã đăng nhập và chưa đăng ký VIP
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && !user.isVip) {
+      setShowVipAd(true); // Hiển thị quảng cáo nếu chưa là VIP
+    }
+  }, []);
 
   const handleAddToFavourites = async () => {
     try {
@@ -49,6 +50,16 @@ const HomeScreen = () => {
     }
   };
 
+  const handleSignUpVip = () => {
+    // Đưa người dùng đến trang đăng ký VIP
+    window.location.href = "/register-vip";
+  };
+
+  const handleClosePopup = () => {
+    setShowVipAd(false);
+    localStorage.setItem("vipAdClosed", "true"); // Lưu trạng thái popup đã đóng
+  };
+
   if (!trendingContent)
     return (
       <div className="h-screen text-white relative">
@@ -59,10 +70,13 @@ const HomeScreen = () => {
 
   return (
     <>
+      {showVipAd && !localStorage.getItem("vipAdClosed") && (
+        <AdPopup onClose={handleClosePopup} onSignUp={handleSignUpVip} />
+      )}
+
       <div className="relative h-screen text-white ">
         <Navbar />
 
-        {/* Loading overlay cho ảnh hero */}
         {imgLoading && (
           <div className="absolute top-0 left-0 w-full h-full bg-black/70 flex items-center justify-center shimmer -z-10" />
         )}
@@ -79,7 +93,6 @@ const HomeScreen = () => {
         <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center px-8 md:px-16 lg:px-32">
           <div className="bg-gradient-to-b from-black via-transparent to-transparent absolute w-full h-full top-0 left-0 -z-10" />
 
-          {/* Hero text */}
           <div className="max-w-2xl">
             <h1 className="mt-4 text-6xl font-extrabold text-balance">
               {trendingContent?.title || trendingContent?.name}
@@ -97,7 +110,6 @@ const HomeScreen = () => {
             </p>
           </div>
 
-          {/* Action buttons */}
           <div className="flex mt-8">
             <Link
               to={`/watch/${trendingContent?.id}`}
@@ -127,7 +139,6 @@ const HomeScreen = () => {
         </div>
       </div>
 
-      {/* Slider section */}
       <div className="flex flex-col gap-10 bg-black py-10">
         {contentType === "movie"
           ? MOVIE_CATEGORIES.map((category) => (

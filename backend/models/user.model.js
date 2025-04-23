@@ -27,6 +27,20 @@ const userSchema = mongoose.Schema({
         type: Array,
         default: [],
     },
+    role: {
+        type: String,
+        enum: ['user', 'vip'],
+        default: 'user',
+    },
+    vipPackage: {
+        type: String,
+        enum: ['basic', 'premium', 'exclusive'],
+        default: null, // Giới thiệu trường này để lưu thông tin về gói VIP mà người dùng đã đăng ký
+    },
+    vipExpiryDate: {
+        type: Date,
+        default: null, // Thêm ngày hết hạn gói VIP nếu cần
+    }
 });
 
 export const User = mongoose.model('User', userSchema);
