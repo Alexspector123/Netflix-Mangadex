@@ -1,26 +1,40 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useAuthStore } from '../store/authUser';
 
 const VipPage = () => {
-  const navigate = useNavigate(); // Khai báo useNavigate trong component
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const handleVipPurchase = async () => {
+    if (!user || !user._id) {
+      toast.error("Không tìm thấy thông tin người dùng!");
+      return;
+    }
+  
     try {
-      const response = await axios.post('/api/users/update-vip', {
+      // Gọi API để cập nhật role của người dùng thành VIP
+      const response = await axios.post('/api/v1/users/update-vip', {
         userId: user._id,
+      }, {
+        withCredentials: true // Đảm bảo token được gửi trong cookie
       });
   
-      // ✅ Backend trả về response.data.msg => dùng cái này
-      toast.success('Đăng ký VIP thành công!');
-      navigate('/');
+      if (response.data.success) {
+        toast.success('Đăng ký VIP thành công!');
+        navigate('/'); // Điều hướng về trang chủ sau khi thành công
+      } else {
+        toast.error('Lỗi khi đăng ký VIP!');
+      }
     } catch (err) {
-      console.error('Lỗi khi gọi API:', err);
+      console.error(err);
       toast.error('Có lỗi khi kết nối với server');
     }
   };
+  
   
 
   return (
@@ -32,19 +46,19 @@ const VipPage = () => {
 
         <div className="flex gap-6">
           <button
-            onClick={() => handleVipPurchase('basic')}
+            onClick={handleVipPurchase}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg"
           >
             Gói VIP Basic
           </button>
           <button
-            onClick={() => handleVipPurchase('premium')}
+            onClick={handleVipPurchase}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg"
           >
             Gói VIP Premium
           </button>
           <button
-            onClick={() => handleVipPurchase('exclusive')}
+            onClick={handleVipPurchase}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg"
           >
             Gói VIP Exclusive

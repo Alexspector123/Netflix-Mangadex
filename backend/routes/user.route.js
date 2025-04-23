@@ -1,7 +1,9 @@
-import express from 'express';
-import { updateVipStatus } from '../controllers/user.controller.js';
+// routes/user.routes.js
+import express from "express";
+import { updateVip } from "../controllers/user.controller.js";
+
 const router = express.Router();
 
-router.patch('/update-vip', updateVipStatus);
+router.post("/update-vip", updateVip); // Route này frontend đang gọi
 
 export default router;

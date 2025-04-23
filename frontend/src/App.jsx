@@ -52,6 +52,7 @@ function App() {
 				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/login"} />} />
 				<Route path='/*' element={<NotFoundPage />} />
 				<Route path='/register-vip' element={user ? <VipPage /> : <Navigate to={"/login"} />} />
+				
 			</Routes>
 			<Footer />
 

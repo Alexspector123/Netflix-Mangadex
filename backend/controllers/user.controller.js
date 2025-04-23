@@ -1,28 +1,27 @@
-import { User } from '../models/User.js';
 
-export const updateVipStatus = async (req, res) => {
+import { User } from "../models/user.model.js";
+export const updateVip = async (req, res) => {
+  try {
     const { userId } = req.body;
-  
+
     if (!userId) {
-      return res.status(400).json({ msg: 'Missing userId' });
+      return res.status(400).json({ success: false, message: "Thiếu userId" });
     }
-  
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { role: 'vip' },
-        { new: true }
-      );
-  
-      if (!updatedUser) {
-        return res.status(404).json({ msg: 'User not found' });
-      }
-  
-      res.status(200).json({ msg: 'Upgrade success', user: updatedUser });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ msg: 'Server error' });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { isVip: true },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy người dùng" });
     }
-  };
-  
-  
+
+    // Kiểm tra trả về đúng cấu trúc
+    res.status(200).json({ success: true, message: "Cập nhật VIP thành công", user: updatedUser });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật VIP:", error.message);
+    res.status(500).json({ success: false, message: "Lỗi server khi cập nhật VIP" });
+  }
+};
