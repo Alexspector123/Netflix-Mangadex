@@ -13,9 +13,13 @@ import {
   X,
   User,
   ChevronDown,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuthStore } from "../store/authUser.js";
 import { useContentStore } from "../store/content.js";
+import { useUIStore } from "../store/uiStore.js";
+import { useI18n } from "../i18n";
 
 const Navbar = () => {
   // State
@@ -26,6 +30,10 @@ const Navbar = () => {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const { user, logout } = useAuthStore();
+  const { darkMode, toggleDark, lang, setLang } = useUIStore();
+  const isVip = user?.isVip;
+  const isAdmin = user?.isAdmin;
+
   const { setContentType } = useContentStore();
   const navigate = useNavigate();
 
@@ -71,11 +79,10 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-black bg-opacity-95 shadow-lg"
-          : "bg-gradient-to-b from-black to-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? "bg-black bg-opacity-95 shadow-lg"
+        : "bg-gradient-to-b from-black to-transparent"
+        }`}
     >
       <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between p-4 h-20">
         {/* Logo & desktop nav */}
@@ -130,13 +137,16 @@ const Navbar = () => {
 
               {historyOpen && (
                 <div className="absolute bg-black bg-opacity-90 shadow-md rounded-md mt-1 p-1 border border-gray-800 w-36 cursor-pointer">
-                  <button
-                    onClick={() => navigate("/favourite")}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-800 rounded text-left"
-                  >
-                    <Heart className="size-4" />
-                    <span>Favorites</span>
-                  </button>
+                  {/* Favourite chỉ cho VIP */}
+                  {isVip && (
+                    <button
+                      onClick={() => navigate("/favourite")}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-800 rounded text-left"
+                    >
+                      <Heart className="size-4" />
+                      <span>Favorites</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => navigate("/history")}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-800 rounded text-left"
@@ -156,10 +166,27 @@ const Navbar = () => {
             <Search className="size-5 hover:scale-110 transition-transform" />
           </Link>
 
-          <Link to="/notification" className="relative hover:text-red-500 transition-colors">
+          <Link to="/notifications" className="relative hover:text-red-500 transition-colors">
             <Bell className="size-5 hover:scale-110 transition-transform" />
             <span className="absolute -top-1 -right-1 bg-red-600 rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
           </Link>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleDark}
+            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700"
+          >
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          {/* Language Selector */}
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+            className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-700"
+          >
+            <option value="vi">VI</option>
+            <option value="en">EN</option>
+          </select>
 
           {/* Profile Dropdown */}
           <div className="relative" ref={profileRef}>

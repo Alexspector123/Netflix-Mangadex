@@ -1,51 +1,305 @@
 @import "tailwindcss";
 
-.hero-bg {
-	background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.1)), url("/hero.png");
+/* ==================== Base Theme Variables ==================== */
+:root {
+  /* Base theme colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --text-primary: #000000;
+  --text-secondary: #4b5563;
+  
+  /* UI Elements */
+  --btn-primary-bg: #e50914;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #e5e7eb;
+  --btn-secondary-text: #000000;
+  --btn-outline-bg: transparent;
+  --btn-outline-border: #d1d5db;
+  --btn-outline-text: #000000;
+  
+  /* Card elements */
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  
+  /* Form elements */
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-text: #000000;
+  --input-placeholder: #9ca3af;
+  
+  /* Other UI elements */
+  --divider-color: #e5e7eb;
+  --overlay-bg: rgba(255, 255, 255, 0.8);
+  
+  /* Specific colors that need overriding */
+  --gray-200: #e5e7eb;
+  --gray-700: #374151;
+  --white-color: #ffffff;
+  --black-color: #000000;
 }
 
+/* Dark theme overrides */
+.dark {
+  /* Base theme colors */
+  --bg-primary: #000000;
+  --bg-secondary: #111827;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  
+  /* UI Elements */
+  --btn-secondary-bg: #374151;
+  --btn-secondary-text: #ffffff;
+  --btn-outline-border: #4b5563;
+  --btn-outline-text: #ffffff;
+  
+  /* Card elements */
+  --card-bg: #1f2937;
+  --card-border: #374151;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  
+  /* Form elements */
+  --input-bg: #1f2937;
+  --input-border: #4b5563;
+  --input-text: #ffffff;
+  --input-placeholder: #6b7280;
+  
+  /* Other UI elements */
+  --divider-color: #374151;
+  --overlay-bg: rgba(0, 0, 0, 0.8);
+  
+  /* Specific colors that need overriding */
+  --gray-200: #374151; /* Dark mode equivalent */
+  --gray-700: #374151;
+  --white-color: #ffffff;
+  --black-color: #000000;
+}
+
+/* ==================== Base Element Styling ==================== */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ==================== Override Tailwind Classes ==================== */
+/* This ensures Tailwind classes respect the current theme */
+
+/* Background colors */
+.bg-white {
+  background-color: var(--bg-primary) !important;
+}
+
+.bg-gray-100 {
+  background-color: var(--bg-secondary) !important;
+}
+
+.bg-gray-200 {
+  background-color: var(--gray-200) !important;
+}
+
+.bg-gray-700 {
+  background-color: var(--gray-700) !important;
+}
+
+.bg-gray-800 {
+  background-color: var(--gray-700) !important;
+}
+
+.bg-gray-900 {
+  background-color: var(--bg-primary) !important;
+}
+
+.bg-black {
+  background-color: var(--bg-primary) !important;
+}
+
+/* Text colors */
+.text-white {
+  color: var(--btn-secondary-text) !important;
+}
+
+.text-black {
+  color: var(--btn-secondary-text) !important;
+}
+
+.text-gray-200 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-300 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-400 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+/* Border colors */
+.border-gray-200 {
+  border-color: var(--divider-color) !important;
+}
+
+.border-gray-700 {
+  border-color: var(--divider-color) !important;
+}
+
+/* ==================== Special Elements ==================== */
+/* Netflix-specific elements like hero and shimmer */
+
+.hero-bg {
+  background-image: linear-gradient(
+      rgba(0, 0, 0, 0.8), 
+      rgba(0, 0, 0, 0.1)
+    ), url("/hero.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.dark .hero-bg {
+  /* Slightly darker overlay for dark mode */
+  background-image: linear-gradient(
+      rgba(0, 0, 0, 0.9), 
+      rgba(0, 0, 0, 0.2)
+    ), url("/hero.png");
+}
+
+/* Shimmer effect for content loading */
 .shimmer {
-	animation: shimmer 2s infinite linear;
-	background: linear-gradient(to right, #2c2c2c 4%, #333 25%, #2c2c2c 36%);
-	background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    to right,
+    #e5e7eb 4%,
+    #f3f4f6 25%,
+    #e5e7eb 36%
+  );
+  background-size: 1000px 100%;
+}
+
+.dark .shimmer {
+  background: linear-gradient(
+    to right,
+    #2c2c2c 4%,
+    #333 25%,
+    #2c2c2c 36%
+  );
+  background-size: 1000px 100%;
 }
 
 @keyframes shimmer {
-	0% {
-		background-position: -1000px 0;
-	}
-	100% {
-		background-position: 1000px 0;
-	}
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
 }
 
+/* Error page styling */
 .error-page--content::before {
-	background: radial-gradient(
-		ellipse at center,
-		rgba(0, 0, 0, 0.5) 0,
-		rgba(0, 0, 0, 0.2) 45%,
-		rgba(0, 0, 0, 0.1) 55%,
-		transparent 70%
-	);
-	bottom: -10vw;
-	content: "";
-	left: 10vw;
-	position: absolute;
-	right: 10vw;
-	top: -10vw;
-	z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.5) 0,
+    rgba(0, 0, 0, 0.2) 45%,
+    rgba(0, 0, 0, 0.1) 55%,
+    transparent 70%
+  );
+  bottom: -10vw;
+  content: "";
+  left: 10vw;
+  position: absolute;
+  right: 10vw;
+  top: -10vw;
+  z-index: -1;
 }
 
+.dark .error-page--content::before {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.7) 0,
+    rgba(0, 0, 0, 0.4) 45%,
+    rgba(0, 0, 0, 0.2) 55%,
+    transparent 70%
+  );
+}
+
+/* Scrollbar styling */
 ::-webkit-scrollbar {
-	width: 8px;
-	display: none;
+  width: 8px;
+  display: none;
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: #4b5563;
-	border-radius: 6px;
+  background-color: var(--divider-color);
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-track {
-	background-color: #1a202c;
+  background-color: var(--bg-secondary);
+}
+
+/* ==================== Theme-specific Component Styles ==================== */
+/* Custom classes for common UI patterns */
+
+.theme-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.theme-input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-text);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+}
+
+.theme-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.theme-button {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  transition: all 0.2s ease;
+}
+
+.theme-button-primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+.theme-button-outline {
+  background-color: var(--btn-outline-bg);
+  border: 1px solid var(--btn-outline-border);
+  color: var(--btn-outline-text);
+}
+
+.theme-divider {
+  border-color: var(--divider-color);
+}
+
+.theme-overlay {
+  background-color: var(--overlay-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
 }

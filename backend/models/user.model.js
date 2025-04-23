@@ -27,6 +27,14 @@ const userSchema = mongoose.Schema({
         type: Array,
         default: [],
     },
+    isVip: {
+        type: Boolean,
+        default: false,
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 export const User = mongoose.model('User', userSchema);

@@ -5,7 +5,8 @@ import SignUpPage from "./pages/SignUpPage";
 import WatchPage from "./pages/WatchPage";
 import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
-import { useAuthStore } from "./store/authUser";
+import { useAuthStore } from "./store/authUser.js";
+import { useUIStore } from "./store/uiStore.js";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import SearchPage from "./pages/SearchPage";
@@ -13,14 +14,20 @@ import SearchHistoryPage from "./pages/SearchHistoryPage";
 import FavouritesPage from "./pages/FavouritesPage";
 import NotFoundPage from "./pages/404";
 import Profile from "./pages/Profile";
+import NotificationsPage from "./pages/NotificationsPage";
 
 function App() {
 	const { user, isCheckingAuth, authCheck } = useAuthStore();
 	console.log("auth user is here: ", user);
-	
+	const { darkMode } = useUIStore();
+
 	useEffect(() => {
 		authCheck();
 	}, [authCheck]);
+	
+	useEffect(() => {
+		document.documentElement.classList.toggle("dark", darkMode);
+	  }, [darkMode]);
 
 	if (isCheckingAuth) {
 		return (
@@ -44,6 +51,7 @@ function App() {
 				<Route path='/history' element={user ? <SearchHistoryPage /> : <Navigate to={"/login"} />} />
 				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/login"} />} />
 				<Route path='/*' element={<NotFoundPage />} />
+				<Route path="/notifications" element={<NotificationsPage />} />
 			</Routes>
 			<Footer />
 
