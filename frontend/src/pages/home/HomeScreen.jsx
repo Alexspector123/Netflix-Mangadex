@@ -38,11 +38,13 @@ const HomeScreen = () => {
         type: contentType,
       };
 
-      await toast.promise(axios.post("/api/v1/search/favourite", payload), {
-        loading: "Adding to favourites...",
-        success: "Added to favourites!",
-        error: "Failed to add to favourites",
-      });
+      await axios.post("/api/v1/search/favourite", payload)
+        .catch(err => {
+          if (err.response?.status === 403) {
+            toast.error("Only VIP accounts can save favourites");
+            navigate("/profile");        // gợi ý nâng cấp
+          } else throw err;
+        });
 
       setIsFavourite(true);
     } catch (error) {
@@ -142,11 +144,11 @@ const HomeScreen = () => {
       <div className="flex flex-col gap-10 bg-black py-10">
         {contentType === "movie"
           ? MOVIE_CATEGORIES.map((category) => (
-              <MovieSlider key={category} category={category} />
-            ))
+            <MovieSlider key={category} category={category} />
+          ))
           : TV_CATEGORIES.map((category) => (
-              <MovieSlider key={category} category={category} />
-            ))}
+            <MovieSlider key={category} category={category} />
+          ))}
       </div>
     </>
   );
