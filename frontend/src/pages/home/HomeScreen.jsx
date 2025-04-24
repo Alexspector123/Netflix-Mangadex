@@ -1,157 +1,218 @@
+// src/pages/HomeScreen/HomeScreen.jsx
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { Info, Play, CirclePlus } from "lucide-react";
 import useGetTrendingContent from "../../hooks/useGetTrendingContent";
-import { MOVIE_CATEGORIES, ORIGINAL_IMG_BASE_URL, TV_CATEGORIES } from "../../utils/constants.js";
+import {
+  MOVIE_CATEGORIES,
+  TV_CATEGORIES,
+  ORIGINAL_IMG_BASE_URL,
+} from "../../utils/constants.js";
 import { useContentStore } from "../../store/content.js";
 import MovieSlider from "../../components/MovieSlider";
 import axios from "axios";
 import toast from "react-hot-toast";
-import AdPopup from "../../components/AdPopup"; // Import quảng cáo
+import AdPopup from "../../components/AdPopup";
 
-const HomeScreen = () => {
-  const { trendingContent } = useGetTrendingContent();
+export default function HomeScreen() {
+  const navigate = useNavigate();
   const { contentType } = useContentStore();
+  const { main, others } = useGetTrendingContent();
+
+  // State để hiển thị & swap khi click thumbnail
+  const [currentMain, setCurrentMain] = useState(null);
+  const [currentOthers, setCurrentOthers] = useState([]);
+
+  // UI flags
   const [imgLoading, setImgLoading] = useState(true);
   const [isFavourite, setIsFavourite] = useState(false);
-  const [showVipAd, setShowVipAd] = useState(false);  // Quản lý popup quảng cáo
+  const [showVipAd, setShowVipAd] = useState(false);
 
+  // Khi hook trả về dữ liệu, khởi tạo local state
   useEffect(() => {
-    setIsFavourite(false);
-  }, [trendingContent, contentType]);
+    if (main) {
+      setCurrentMain(main);
+      setCurrentOthers(others);
+      setIsFavourite(false);
+      setImgLoading(true);
+    }
+  }, [main, others]);
 
+  // Hiển thị popup VIP lần đầu
   useEffect(() => {
-    // Kiểm tra nếu user đã đăng nhập và chưa đăng ký VIP
     const user = JSON.parse(localStorage.getItem("user"));
     if (user && !user.isVip) {
-      setShowVipAd(true); // Hiển thị quảng cáo nếu chưa là VIP
+      setShowVipAd(true);
     }
   }, []);
 
   const handleAddToFavourites = async () => {
     try {
       const payload = {
-        id: trendingContent?.id,
-        image: trendingContent?.poster_path || trendingContent?.backdrop_path,
-        title: trendingContent?.title || trendingContent?.name,
+        id: currentMain.id,
+        image: currentMain.poster_path || currentMain.backdrop_path,
+        title: currentMain.title || currentMain.name,
         type: contentType,
       };
-
-      await axios.post("/api/v1/search/favourite", payload)
-        .catch(err => {
-          if (err.response?.status === 403) {
-            toast.error("Only VIP accounts can save favourites");
-            navigate("/profile");        // gợi ý nâng cấp
-          } else throw err;
-        });
-
+      await axios.post("/api/v1/search/favourite", payload).catch((err) => {
+        if (err.response?.status === 403) {
+          toast.error("Only VIP accounts can save favourites");
+          navigate("/profile");
+        } else throw err;
+      });
       setIsFavourite(true);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handleSignUpVip = () => {
-    // Đưa người dùng đến trang đăng ký VIP
-    window.location.href = "/register-vip";
+  const handleThumbnailClick = (item) => {
+    // Swap hero <-> thumbnail
+    setCurrentOthers((prev) =>
+      prev.map((m) => (m.id === item.id ? currentMain : m))
+    );
+    setCurrentMain(item);
+    setIsFavourite(false);
+    setImgLoading(true);
   };
 
   const handleClosePopup = () => {
     setShowVipAd(false);
-    localStorage.setItem("vipAdClosed", "true"); // Lưu trạng thái popup đã đóng
+    localStorage.setItem("vipAdClosed", "true");
   };
 
-  if (!trendingContent)
+  // Loading skeleton
+  if (!currentMain) {
     return (
       <div className="h-screen text-white relative">
         <Navbar />
-        <div className="absolute top-0 left-0 w-full h-full bg-black/70 flex items-center justify-center -z-10 shimmer" />
+        <div className="absolute inset-0 bg-black/70 flex items-center justify-center shimmer" />
       </div>
     );
+  }
 
   return (
     <>
+      {/* VIP Popup */}
       {showVipAd && !localStorage.getItem("vipAdClosed") && (
-        <AdPopup onClose={handleClosePopup} onSignUp={handleSignUpVip} />
+        <AdPopup
+          onClose={handleClosePopup}
+          onSignUp={() => (window.location.href = "/register-vip")}
+        />
       )}
 
-      <div className="relative h-screen text-white ">
+      {/* HERO */}
+      <div className="relative h-screen text-white">
         <Navbar />
 
+        {/* Backdrop & overlay */}
         {imgLoading && (
-          <div className="absolute top-0 left-0 w-full h-full bg-black/70 flex items-center justify-center shimmer -z-10" />
+          <div className="absolute inset-0 bg-black/70 shimmer" />
         )}
-
         <img
-          src={ORIGINAL_IMG_BASE_URL + trendingContent?.backdrop_path}
-          alt="Hero img"
-          className="absolute top-0 left-0 w-full h-full object-cover -z-50"
+          src={ORIGINAL_IMG_BASE_URL + currentMain.backdrop_path}
+          alt="Hero"
+          className="absolute inset-0 w-full h-full object-cover"
           onLoad={() => setImgLoading(false)}
         />
+        <div className="absolute inset-0 bg-black/50" />
 
-        <div className="absolute top-0 left-0 w-full h-full bg-black/50 -z-50" aria-hidden="true" />
+        {/* Info block */}
+        <div className="relative z-10 px-5 md:px-10 lg:px-20 py-60 max-w-4xl gap-4 flex flex-col">
+          <h1 className="text-6xl font-extrabold ">
+            {currentMain.title || currentMain.name}
+          </h1>
 
-        <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center px-8 md:px-16 lg:px-32">
-          <div className="bg-gradient-to-b from-black via-transparent to-transparent absolute w-full h-full top-0 left-0 -z-10" />
-
-          <div className="max-w-2xl">
-            <h1 className="mt-4 text-6xl font-extrabold text-balance">
-              {trendingContent?.title || trendingContent?.name}
-            </h1>
-            <p className="mt-2 text-lg">
-              {trendingContent?.release_date?.split("-")[0] ||
-                trendingContent?.first_air_date.split("-")[0]}{" "}
-              | {trendingContent?.adult ? "18+" : "PG-13"}
-            </p>
-
-            <p className="mt-4 text-lg">
-              {trendingContent?.overview.length > 200
-                ? trendingContent?.overview.slice(0, 200) + "..."
-                : trendingContent?.overview}
-            </p>
+          <div className="flex flex-wrap gap-2 mt-2 text-sm">
+            <span className="px-2 py-1 bg-yellow-500 rounded">
+              IMDb {currentMain.vote_average.toFixed(1)}
+            </span>
+            <span className="px-2 py-1 bg-gray-800 rounded">
+              {currentMain.adult ? "18+" : "PG-13"}
+            </span>
+            <span className="px-2 py-1 bg-gray-800 rounded">
+              {(
+                currentMain.release_date?.slice(0, 4) ||
+                currentMain.first_air_date.slice(0, 4)
+              )}
+            </span>
+            {currentMain.number_of_seasons && (
+              <span className="px-2 py-1 bg-gray-800 rounded">
+                Seasons: {currentMain.number_of_seasons}
+              </span>
+            )}
           </div>
 
-          <div className="flex mt-8">
+          <div className="flex flex-wrap gap-2 mt-2 text-sm">
+            {(currentMain.genres || []).map((g) => (
+              <span key={g.id} className="px-2 py-1 bg-gray-700 rounded">
+                {g.name}
+              </span>
+            ))}
+          </div>
+
+          <p className="mt-4 text-lg">
+            {currentMain.overview.length > 200
+              ? currentMain.overview.slice(0, 200) + "..."
+              : currentMain.overview}
+          </p>
+
+          <div className="flex gap-4 mt-6">
             <Link
-              to={`/watch/${trendingContent?.id}`}
-              className="bg-white hover:bg-red-500 text-black font-bold py-2 px-4 rounded mr-4 flex items-center"
+              to={`/watch/${currentMain.id}`}
+              className="bg-gray-500/70 text-white py-2 px-4 rounded flex items-center hover:bg-red-500 hover:text-black"
             >
-              <Play className="size-6 mr-2 fill-black" />
-              Play
+              <Play className="mr-2" /> Play
             </Link>
 
             <Link
-              to={`/watch/${trendingContent?.id}`}
-              className="bg-gray-500/70 hover:bg-red-500 hover:text-black text-white py-2 px-4 rounded flex items-center"
+              to={`/watch/${currentMain.id}`}
+              className="bg-gray-500/70 text-white py-2 px-4 rounded flex items-center hover:bg-red-500 hover:text-black"
             >
-              <Info className="size-6 mr-2" />
-              More Info
+              <Info className="mr-2" /> More Info
             </Link>
 
             {!isFavourite && (
               <button
                 onClick={handleAddToFavourites}
-                className="text-white py-2 px-4 rounded flex items-center hover:text-red-500 transition-colors"
+                className="text-white py-2 px-4 rounded flex items-center hover:text-red-500"
               >
-                <CirclePlus className="size-6 mr-2" />
+                <CirclePlus className="mr-2" />
               </button>
             )}
           </div>
         </div>
+
+        {/* Thumbnail strip (bottom-right) */}
+        <div className="hidden md:flex absolute bottom-8 right-8 gap-3 z-20">
+          {currentOthers.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleThumbnailClick(item)}
+              className="w-28 h-16 border-2 border-transparent hover:border-white rounded overflow-hidden transition"
+            >
+              <img
+                src={
+                  ORIGINAL_IMG_BASE_URL +
+                  (item.backdrop_path || item.poster_path)
+                }
+                alt={item.title || item.name}
+                className="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* CATEGORY SLIDERS */}
       <div className="flex flex-col gap-10 bg-black py-10">
-        {contentType === "movie"
-          ? MOVIE_CATEGORIES.map((category) => (
+        {(contentType === "movie" ? MOVIE_CATEGORIES : TV_CATEGORIES).map(
+          (category) => (
             <MovieSlider key={category} category={category} />
-          ))
-          : TV_CATEGORIES.map((category) => (
-            <MovieSlider key={category} category={category} />
-          ))}
+          )
+        )}
       </div>
     </>
   );
-};
-
-export default HomeScreen;
+}

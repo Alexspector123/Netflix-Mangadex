@@ -14,6 +14,9 @@ import SearchHistoryPage from "./pages/SearchHistoryPage";
 import FavouritesPage from "./pages/FavouritesPage";
 import NotFoundPage from "./pages/404";
 import Profile from "./pages/Profile";
+import NotificationsPage from "./pages/NotificationsPage";
+import PeoplePage from "./pages/PeoplePage";
+import PeopleDetails from "./pages/PeopleDetailsPage";
 import VipPage from "./pages/VipPage.jsx";
 
 function App() {
@@ -48,6 +51,9 @@ function App() {
 				<Route path='/watch/:id' element={user ? <WatchPage /> : <Navigate to={"/login"} />} />
 				<Route path='/search' element={user ? <SearchPage /> : <Navigate to={"/login"} />} />
 				<Route path='/profile' element={<Profile/>} />
+				<Route path='/people' element={user  ? <PeoplePage /> : <Navigate to="/login" />} />
+				<Route path='/people/:id' element={user ? <PeopleDetails /> : <Navigate to="/login" />} />
+				<Route path='/notifications' element={<NotificationsPage/>} />
 				<Route path='/history' element={user ? <SearchHistoryPage /> : <Navigate to={"/login"} />} />
 				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/login"} />} />
 				<Route path='/*' element={<NotFoundPage />} />

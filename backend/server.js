@@ -4,6 +4,7 @@ import path from "path";
 
 import authRoutes from "./routes/auth.route.js";
 import movieRoutes from "./routes/movie.route.js";
+import peopleRoutes from "./routes/people.route.js";
 import tvRoutes from "./routes/tv.route.js";
 import searchRoutes from "./routes/search.route.js";
 import notificationRoutes from "./routes/notification.route.js";
@@ -30,6 +31,7 @@ app.use(cors({
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/movie", protectRoute, movieRoutes);
 app.use("/api/v1/tv", protectRoute, tvRoutes);
+app.use("/api/v1/people", protectRoute, peopleRoutes);
 app.use("/api/v1/search", protectRoute, searchRoutes);
 app.use("/api/v1/notifications", protectRoute, notificationRoutes);
 

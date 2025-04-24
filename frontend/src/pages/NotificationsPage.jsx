@@ -18,24 +18,24 @@ const NotificationsPage = () => {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   const notificationTypes = [
-    { id: 'all', label: 'All Notifications' },
-    { id: 'new_content', label: 'New Content' },
-    { id: 'recommendation', label: 'Recommendations' },
-    { id: 'continue_watching', label: 'Continue Watching' },
-    { id: 'subscription', label: 'Subscription' },
-    { id: 'unread', label: 'Unread' },
+    { id: 'new_content', label: 'New Content', backend: 'new' },
+    { id: 'trending_content', label: 'Trending', backend: 'treding' },
+    { id: 'unread', label: 'Unread', backend: null },
   ];
 
   // Load notifications on page load
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    const selectedType = notificationTypes.find(t => t.id === activeFilter);
+    if (selectedType?.backend) {
+      fetchNotifications(selectedType.backend);
+    } else {
+      fetchNotifications('new'); 
+    }
+  }, [activeFilter]);
 
-  const filteredNotifications = notifications.filter((notification) => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'unread') return !notification.read;
-    return notification.type === activeFilter;
-  });
+  const filteredNotifications = activeFilter === 'unread'
+  ? notifications.filter(n => !n.read)
+  : notifications;
 
   const handleReadNotification = (id) => markAsRead(id);
   const handleRemoveNotification = (e, id) => { e.stopPropagation(); removeNotification(id); };
@@ -89,7 +89,7 @@ const NotificationsPage = () => {
                 <button
                   className="flex items-center gap-1 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-md text-sm"
                   onClick={markAllAsRead}
-                  disabled={!notifications.some((n) => !n.read)}
+                  disabled={notifications.every((n) => n.read)}
                 >
                   <CheckCheck size={16} />
                   <span>Mark all read</span>

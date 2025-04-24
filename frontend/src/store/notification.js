@@ -6,9 +6,9 @@ export const useNotificationStore = create((set) => ({
   unreadCount: 0,
 
   // Fetch from backend API
-  fetchNotifications: async () => {
+  fetchNotifications: async (type = 'new') => {
     try {
-      const res = await axios.get('/api/v1/notifications/new');
+      const res = await axios.get(`/api/v1/notifications/${type}`);
       const items = res.data.notifications;
       set({
         notifications: items,
@@ -19,6 +19,7 @@ export const useNotificationStore = create((set) => ({
       console.error('Failed to load notifications:', err);
     }
   },
+  
 
   markAsRead: (id) =>
     set((state) => {

@@ -3,9 +3,14 @@ import { fetchFromTMDB } from "../services/tmdb.service.js";
 export async function getTrendingTVs(req, res) {
     try {
         const data = await fetchFromTMDB("https://api.themoviedb.org/3/trending/tv/day?language=en-US");
-        const randomTV = data.results[Math.floor(Math.random() * data.results?.length)];
+        const idx = Math.floor(Math.random() * data.results.length);
+        const main = data.results[idx];
+        const detail = await fetchFromTMDB(`https://api.themoviedb.org/3/tv/${main.id}?language=en-US`);
+        const others = data.results
+        .filter((_, i) => i !== idx)
+        .slice(0, 5);
 
-        res.json({success: true, content: randomTV});
+        res.json({success: true, main:    { ...main, ...detail, genres: detail.genres }, others});
     } catch (error) {
         res.status(500).json({success: false, message: "Internal Server Error"});
     }

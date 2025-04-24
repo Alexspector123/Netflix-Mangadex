@@ -1,123 +1,137 @@
+// src/pages/SearchPage.jsx
 import { useState, useEffect, useRef } from "react";
 import { useContentStore } from "../store/content";
 import Navbar from "../components/Navbar";
-import { Search } from "lucide-react";
+import { Search as SearchIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { ORIGINAL_IMG_BASE_URL } from "../utils/constants";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ORIGINAL_IMG_BASE_URL } from "../utils/constants.js";
+import { Link, useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
-	const [activeTab, setActiveTab] = useState("movie");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState([]);
-  const { setContentType } = useContentStore();
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab]     = useState("movie");
+  const [searchTerm, setSearchTerm]   = useState("");
+  const [results, setResults]         = useState([]);
+  const { setContentType }            = useContentStore();
+  const navigate                       = useNavigate();
+  const debounceRef                   = useRef(null);
 
-  const debounceRef = useRef(null);
-
-  // Khi thay đổi tab, xóa kết quả cũ và cập nhật loại content
+  // Change tabs & clear
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    setContentType(tab === "movie" ? "movie" : tab === "tv" ? "tv" : "person");
-    setResults([]);
+    setContentType(tab);
     setSearchTerm("");
+    setResults([]);
     navigate(`/search?query=`, { replace: true });
   };
 
-  // Debounce tìm kiếm mỗi khi searchTerm hoặc activeTab thay đổi
+  // Debounced search
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!searchTerm.trim()) {
-      setResults([]);
-      return;
-    }
+    clearTimeout(debounceRef.current);
+    if (!searchTerm.trim()) return setResults([]);
 
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await axios.get(`/api/v1/search/${activeTab}/${encodeURIComponent(searchTerm)}`);
-        setResults(res.data.content);
+        const res = await axios.get(
+          `/api/v1/search/${activeTab}/${encodeURIComponent(searchTerm)}`
+        );
+        setResults(res.data.content || []);
         navigate(`/search?query=${encodeURIComponent(searchTerm)}`, { replace: true });
-      } catch (error) {
-        if (error.response?.status === 404) {
-          toast.error("Nothing found, make sure you are searching under the right category");
+      } catch (err) {
+        if (err.response?.status === 404) {
+          toast.error("No results. Try a different category or keyword.");
         } else {
-          toast.error("An error occurred, please try again later");
+          toast.error("Search failed. Please try again.");
         }
         setResults([]);
       }
-    }, 50);
-
+    }, 200);
     return () => clearTimeout(debounceRef.current);
   }, [searchTerm, activeTab, navigate]);
 
+  const placeholderImage = "/images/movie-placeholder.png";
+
   return (
-    <div className='bg-black min-h-screen text-white'>
+    <div className="bg-black min-h-screen text-white">
       <Navbar />
-      <div className='container mx-auto px-4 py-20'>
-        {/* Tab chọn loại nội dung */}
-        <div className='flex justify-center gap-3 mb-4'>
+
+      <div className="container mx-auto px-4 py-20">
+        {/* Tabs */}
+        <div className="flex justify-center gap-3 mb-8">
           {["movie", "tv", "person"].map((tab) => (
             <button
               key={tab}
-              className={`py-2 px-4 rounded ${activeTab === tab ? "bg-red-600" : "bg-gray-800"} hover:bg-red-700`}
               onClick={() => handleTabClick(tab)}
+              className={`py-2 px-4 rounded ${
+                activeTab === tab ? "bg-red-600" : "bg-gray-800"
+              } hover:bg-red-700`}
             >
               {tab === "movie"
                 ? "Movies"
                 : tab === "tv"
                 ? "TV Shows"
-                : "Person"}
+                : "People"}
             </button>
           ))}
         </div>
 
-        {/* Input tìm kiếm */}
-        <div className='flex gap-2 items-stretch mb-8 max-w-2xl mx-auto'>
+        {/* Search input */}
+        <div className="flex max-w-2xl mx-auto mb-12 gap-2">
           <input
-            type='text'
+            type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={`Search for a ${activeTab}`}
-            className='w-full p-2 rounded bg-gray-800 text-white'
+            placeholder={`Search for ${activeTab}`}
+            className="flex-1 p-2 rounded bg-gray-800 text-white focus:outline-none"
           />
           <button
-            className='bg-red-600 hover:bg-red-700 text-white p-2 rounded'
             onClick={() => setSearchTerm(searchTerm.trim())}
+            className="bg-red-600 hover:bg-red-700 px-4 rounded"
           >
-            <Search className='size-6' />
+            <SearchIcon size={20} />
           </button>
         </div>
 
-        {/* Kết quả tìm kiếm */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-          {results.map((result) => {
-            if (!result.poster_path && !result.profile_path) return null;
+        {/* Results grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {results.map((item) => {
+            // choose image & title
+            const imgPath = item.poster_path || item.profile_path;
+            const title   = item.title || item.name;
+            // build detail link
+            const to =
+              activeTab === "movie"
+                ? `/watch/${item.id}`
+                : activeTab === "tv"
+                ? `/watch/${item.id}`
+                : `/people/${item.id}`;
+
             return (
-              <div key={result.id} className='bg-gray-800 p-4 rounded'>
-                {activeTab === "person" ? (
-                  <div className='flex flex-col items-center'>
-                    <img
-                      src={ORIGINAL_IMG_BASE_URL + result.profile_path}
-                      alt={result.name}
-                      className='max-h-96 rounded mx-auto'
-                    />
-                    <h2 className='mt-2 text-xl font-bold'>{result.name}</h2>
-                  </div>
-                ) : (
-                  <Link
-                    to={`/watch/${result.id}`}
-                    onClick={() => setContentType(activeTab)}
-                  >
-                    <img
-                      src={ORIGINAL_IMG_BASE_URL + result.poster_path}
-                      alt={result.title || result.name}
-                      className='w-full h-auto rounded'
-                    />
-                    <h2 className='mt-2 text-xl font-bold'>{result.title || result.name}</h2>
-                  </Link>
-                )}
-              </div>
+              <Link
+                key={item.id}
+                to={to}
+                onClick={() => setContentType(activeTab)}
+                className="block bg-gray-800 rounded overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="aspect-[2/3] bg-gray-700">
+                  <img
+                    src={
+                      imgPath
+                        ? ORIGINAL_IMG_BASE_URL + imgPath
+                        : placeholderImage
+                    }
+                    alt={title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = placeholderImage;
+                    }}
+                  />
+                </div>
+                <h2 className="mt-2 px-2 pb-2 text-lg font-semibold truncate">
+                  {title}
+                </h2>
+              </Link>
             );
           })}
         </div>
@@ -125,4 +139,5 @@ const SearchPage = () => {
     </div>
   );
 };
+
 export default SearchPage;
