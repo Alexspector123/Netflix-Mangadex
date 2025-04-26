@@ -134,11 +134,6 @@ export default function Profile() {
       </div>
       <div className="p-3">
         <h5 className="text-white font-medium">{item.title}</h5>
-        {isFav && (
-          <button className="mt-2 text-red-400 hover:text-red-600 text-sm flex items-center gap-1">
-            <Heart size={14} /> Bỏ yêu thích
-          </button>
-        )}
       </div>
     </div>
   );

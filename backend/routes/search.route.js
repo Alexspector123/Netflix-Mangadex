@@ -4,6 +4,9 @@ import { checkVip } from "../middleware/checkVip.js";
 
 const router = express.Router();
 
+router.get("/movie", searchMovie);
+router.get("/tv", searchTv);
+router.get("/person", searchPerson); 
 router.get("/person/:query", searchPerson);
 router.get("/movie/:query", searchMovie);
 router.get("/tv/:query", searchTv);

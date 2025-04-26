@@ -89,3 +89,49 @@ export async function getPeopleSocial(req, res) {
     }
 }
 
+export async function getFeaturedPerson(req, res) {
+    try {
+        const data = await fetchFromTMDB("https://api.themoviedb.org/3/trending/person/week?language=en-US");
+        const featuredPerson = data.results[Math.floor(Math.random() * data.results.length)];
+        res.json(featuredPerson);
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}
+
+export async function getPopularActors(req, res) {
+    try {
+        const data = await fetchFromTMDB("https://api.themoviedb.org/3/person/popular?language=en-US&page=1");
+        const actors = data.results.filter(person => person.known_for_department === "Acting");
+        res.json({ success: true, content: actors });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}
+
+export async function getPopularDirectors(req, res) {
+    try {
+        const data = await fetchFromTMDB("https://api.themoviedb.org/3/person/popular?language=en-US&page=1");
+        const directors = data.results.filter(person => person.known_for_department === "Directing");
+        res.json({ success: true, content: directors });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}
+
+export async function getAwardWinners(req, res) {
+    try {
+      const data = await fetchFromTMDB("https://api.themoviedb.org/3/person/popular?language=en-US&page=1");
+      
+      if (!data.results || data.results.length === 0) {
+        return res.status(404).json({ success: false, message: "No award winners found" });
+      }
+  
+      const awardWinners = data.results.slice(0, 10); 
+      res.status(200).json({ success: true, content: awardWinners });
+    } catch (error) {
+      console.error("Error fetching award winners:", error.message);
+      res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+  }
+  
