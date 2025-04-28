@@ -42,9 +42,8 @@ export default function PeoplePage() {
   // Handler for search form submission
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `/search?type=person&query=${encodeURIComponent(searchQuery)}`;
-    }
+    if (!searchQuery.trim()) return;
+    window.location.href = `/search?type=person&query=${encodeURIComponent(searchQuery.trim())}`;
   };
 
   return (
@@ -229,7 +228,7 @@ export default function PeoplePage() {
             <div className="bg-gray-800/60 rounded-xl overflow-hidden group">
               <div className="h-40 bg-gradient-to-r from-blue-900 to-purple-900 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity">
-                  <img src="/images/actors-banner.jpg" alt="Actors" className="w-full h-full object-cover" />
+                  <img src="/public/actors-banner.jpg" alt="Actors" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Film size={48} className="text-white/70" />
@@ -252,7 +251,7 @@ export default function PeoplePage() {
             <div className="bg-gray-800/60 rounded-xl overflow-hidden group">
               <div className="h-40 bg-gradient-to-r from-red-900 to-amber-900 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity">
-                  <img src="/images/directors-banner.jpg" alt="Directors" className="w-full h-full object-cover" />
+                  <img src="/public/directors-banner.jpg" alt="Directors" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Clapperboard size={48} className="text-white/70" />
@@ -275,7 +274,7 @@ export default function PeoplePage() {
             <div className="bg-gray-800/60 rounded-xl overflow-hidden group">
               <div className="h-40 bg-gradient-to-r from-emerald-900 to-teal-900 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity">
-                  <img src="/images/writers-banner.jpg" alt="Writers" className="w-full h-full object-cover" />
+                  <img src="/public/writers-banner.jpg" alt="Writers" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">

@@ -1,45 +1,69 @@
 import { fetchFromTMDB } from "../services/tmdb.service.js";
 import { User } from "../models/user.model.js";
 
+const cache = new Map();
+const TTL = 300000; // 5 minutes
+
+const getCached = (k) => {
+  const e = cache.get(k);
+  if (!e) return null;
+  if (Date.now() - e.ts > TTL) {
+    cache.delete(k);
+    return null;
+  }
+  return e.data;
+};
+const setCached = (k, v) => cache.set(k, { data: v, ts: Date.now() });
+
 export async function searchPerson(req, res) {
-    const query = req.params.query || req.query.query;
-    const { department } = req.query; // 🎯 thêm hỗ trợ lọc department (acting/directing/writing)
+  const query = (req.params.query || req.query.query || '').trim();
+  const department = (req.query.department || '').toLowerCase();
 
-    try {
-        const response = await fetchFromTMDB(`https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`);
+  if (!query) return res.status(400).json({ success: false, message: 'query required' });
 
-        if (!response.results || response.results.length === 0) {
-            return res.status(404).send(null);
+  const cacheKey = `${query.toLowerCase()}_${department}`;
+  const cached = getCached(cacheKey);
+  if (cached) return res.json({ success: true, content: cached });
+
+  try {
+    const { results = [] } = await fetchFromTMDB(
+      `https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(
+        query
+      )}&include_adult=false&language=en-US&page=1`
+    );
+
+    if (!results.length) return res.status(404).send(null);
+
+    const filtered = department
+      ? results.filter(
+          (p) =>
+            p.known_for_department &&
+            p.known_for_department.toLowerCase().includes(department)
+        )
+      : results;
+
+    setCached(cacheKey, filtered);
+    res.json({ success: true, content: filtered });
+
+    if (req.user && filtered.length)
+      User.updateOne(
+        { _id: req.user._id },
+        {
+          $push: {
+            searchHistory: {
+              id: filtered[0].id,
+              image: filtered[0].profile_path,
+              title: filtered[0].name,
+              searchType: 'person',
+              createdAt: new Date()
+            }
+          }
         }
-
-        let filteredResults = response.results;
-
-        // 🎯 Nếu có department lọc thêm
-        if (department) {
-            const targetDepartment = department.toLowerCase();
-            filteredResults = response.results.filter(person =>
-                person.known_for_department &&
-                person.known_for_department.toLowerCase().includes(targetDepartment)
-            );
-        }
-
-        await User.findByIdAndUpdate(req.user._id, {
-            $push: {
-                searchHistory: {
-                    id: filteredResults[0]?.id || response.results[0].id,
-                    image: filteredResults[0]?.profile_path || response.results[0].profile_path,
-                    title: filteredResults[0]?.name || response.results[0].name,
-                    searchType: "person",
-                    createdAt: new Date(),
-                },
-            },
-        });
-
-        res.status(200).json({ success: true, content: filteredResults });
-    } catch (error) {
-        console.error("Error in search person controller: ", error.message);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
+      ).catch(() => {});
+  } catch (err) {
+    console.error('searchPerson:', err.message);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 }
 
 export async function searchMovie(req, res) {
