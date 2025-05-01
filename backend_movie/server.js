@@ -18,7 +18,7 @@ import cors from "cors";
 
 const app = express();
 
-const PORT = ENV_VARS.PORT;
+const PORT = ENV_VARS.MOVIE_PORT;
 const __dirname = path.resolve();
 
 app.use(express.json()); 
