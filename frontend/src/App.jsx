@@ -18,6 +18,8 @@ import NotificationsPage from "./pages/NotificationsPage";
 import PeoplePage from "./pages/PeoplePage";
 import PeopleDetails from "./pages/PeopleDetailsPage";
 import VipPage from "./pages/VipPage.jsx";
+import ChapPage from "./pages/ChapPage.jsx";
+import ChapLayout from "./layout/ChapLayout.jsx";
 
 function App() {
 	const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -58,7 +60,9 @@ function App() {
 				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/login"} />} />
 				<Route path='/*' element={<NotFoundPage />} />
 				<Route path='/register-vip' element={user ? <VipPage /> : <Navigate to={"/login"} />} />
-				
+				<Route path="/chapter" element={<ChapLayout />}>
+					<Route path=":id/:page" element={<ChapPage />}/>
+				</Route>
 			</Routes>
 			<Footer />
 
