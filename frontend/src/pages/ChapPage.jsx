@@ -91,10 +91,6 @@ const ChapPage = () => {
       }
   };
 
-  const click = () => {
-    console.log('123');
-  }
-
   return (
     <>
     {!isChapterLoading && (

@@ -10,9 +10,13 @@ import { IoIosArrowBack, IoIosArrowForward  } from "react-icons/io";
 import useFetchChapterbyID from '../hooks/useFetchChapterbyID';
 import useChapterList from '../hooks/useChapterList';
 
+import { useUIStore } from "../store/uiStore";
+
 const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { darkMode } = useUIStore();
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -121,24 +125,25 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
         <div className="mt-4">
 
           <div className="flex items-center gap-3 relative">
-            <div className=' bg-slate-200 h-14 w-7
+            <div className={`h-14 w-7
                             flex text-center items-center justify-center
-                            cursor-pointer'>
+                            cursor-pointer
+                            ${darkMode ? 'border' : 'bg-slate-200'} `}>
               <IoIosArrowBack  
               className='text-xl'
               onClick={moveNextChapter}/>
             </div>
             <div 
-            className="flex-grow text-center p-4 rounded cursor-pointer
+            className={`flex-grow text-center p-4 rounded cursor-pointer
                         text-base
-                        bg-slate-200"
+                        ${darkMode ? 'border' : 'bg-slate-200'} `}
             onClick={() => setDropdownOpen(!isDropdownOpen)}
             >
               Chapter {chapterData.chapterNo}
             </div>
 
             {isDropdownOpen && (
-              <div className="absolute top-full left-11 mt-1 w-50 bg-slate-200 border shadow-lg rounded-md z-10">
+              <div className={`absolute top-full left-11 mt-1 w-50 bg-black border shadow-lg rounded-md z-10`}>
                 <ul className="max-h-60 overflow-y-auto">
                   {groupedChapter?.map((chapter) => (
                     <li
@@ -152,9 +157,10 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
                 </ul>
               </div>
             )}
-            <div className=' bg-slate-200 h-14 w-7
+            <div className={` h-14 w-7
                             flex text-center items-center justify-center
-                            cursor-pointer'>
+                            cursor-pointer
+                            ${darkMode ? 'border' : 'bg-slate-200'} `}>
               <IoIosArrowForward  
               className='text-xl'
               onClick={movePrevChapter}/>
