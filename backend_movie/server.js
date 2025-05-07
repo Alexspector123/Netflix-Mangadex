@@ -11,10 +11,10 @@ import notificationRoutes from "./routes/notification.route.js";
 import userRoutes from "./routes/user.route.js"; // 👉 Import thêm route mới
 
 import { ENV_VARS } from "./config/envVars.js";
-import { connectDB } from "./config/db.js";
+import { connectDB, sequelize } from "./config/db.js";
+import { User } from "./models/user.model.js";
 import { protectRoute } from "./middleware/protectRoute.js";
 import cors from "cors";
-
 
 const app = express();
 
@@ -35,9 +35,17 @@ app.use("/api/v1/people", protectRoute, peopleRoutes);
 app.use("/api/v1/search", protectRoute, searchRoutes);
 app.use("/api/v1/notifications", protectRoute, notificationRoutes);
 
-app.use("/api/v1/users",protectRoute, userRoutes); 
+app.use("/api/v1/users",protectRoute, userRoutes);
 
-app.listen(PORT, () => {
-	console.log("Server started at http://localhost:" + PORT);
-	connectDB();
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+        await sequelize.sync({ alter: true }); // Sync models with database
+        console.log("Models synchronized with MySQL database.");
+        app.listen(PORT, () => 	console.log("Server started at http://localhost:" + PORT));
+    } catch (error) {
+        console.error("Error starting server:", error.message);
+    }
+};
+
+startServer();

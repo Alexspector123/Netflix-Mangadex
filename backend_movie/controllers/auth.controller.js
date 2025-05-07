@@ -44,7 +44,7 @@ export async function signup(req, res) {
             password: hashedPassword,
             username,
             image,
-            role: 'user', // Default role is 'user'
+            role: 'user',
         });
 
         if(newUser) {
@@ -58,7 +58,7 @@ export async function signup(req, res) {
                 success: true,
                 showVipAd: showVipAd, // Thêm trường này
                 user: {
-                    ...newUser._doc,
+                    ...newUser.toJSON(),
                     password: "",
                 },
             });
@@ -97,7 +97,7 @@ export async function login(req, res) {
             success: true,
             showVipAd: showVipAd, // Trả về trường này
             user: {
-                ...user._doc,
+                ...user.toJSON(),
                 password: "",
             },
         });
@@ -106,8 +106,6 @@ export async function login(req, res) {
         res.status(500).json({success: false, message: "Internal server error"});
     }
 }
-
-
 
 export async function logout(req, res) {
     try {
