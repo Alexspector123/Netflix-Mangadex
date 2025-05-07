@@ -24,5 +24,5 @@ app.use(
 );
 
 app.listen(5000, () => {
-  console.log("🌐 Gateway running on http://localhost:5000");
+  console.log("Gateway running on http://localhost:5000");
 });

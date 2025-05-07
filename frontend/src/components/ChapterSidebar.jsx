@@ -7,8 +7,8 @@ import { FaFileAlt, FaUserFriends } from "react-icons/fa";
 import { BsArrowsFullscreen } from "react-icons/bs";
 import { IoIosArrowBack, IoIosArrowForward  } from "react-icons/io";
 
-import useFetchChapterbyID from '../hooks/useFetchChapterbyID';
-import useChapterList from '../hooks/useChapterList';
+import useFetchChapterbyID from '../hooks/manga/useFetchChapterbyID';
+import useChapterList from '../hooks/manga/useChapterList';
 
 import { useUIStore } from "../store/uiStore";
 

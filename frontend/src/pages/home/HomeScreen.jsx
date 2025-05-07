@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { Info, Play, CirclePlus } from "lucide-react";
-import useGetTrendingContent from "../../hooks/useGetTrendingContent";
+import useGetTrendingContent from "../../hooks/movie/useGetTrendingContent.jsx";
 import {
   MOVIE_CATEGORIES,
   TV_CATEGORIES,

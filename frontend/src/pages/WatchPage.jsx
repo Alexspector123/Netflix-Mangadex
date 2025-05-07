@@ -12,7 +12,7 @@ import { formatReleaseDate } from "../utils/dateFunction";
 
 import Navbar from "../components/Navbar";
 import WatchPageSkeleton from "../components/skeletons/WatchPageSkeleton";
-import useChapterList from "../hooks/useChapterList";
+import useChapterList from "../hooks/manga/useChapterList";
 import ReadModal from "../components/ReadModal";
 
 import { BiNavigation } from "react-icons/bi";

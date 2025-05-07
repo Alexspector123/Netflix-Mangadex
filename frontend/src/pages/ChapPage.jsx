@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import useFetchChapterReader from '../hooks/useFetchChapterReader';
-import useFetchChapterbyID from '../hooks/useFetchChapterbyID';
-import useChapterList from '../hooks/useChapterList';
+import useFetchChapterReader from '../hooks/manga/useFetchChapterReader';
+import useFetchChapterbyID from '../hooks/manga/useFetchChapterbyID';
+import useChapterList from '../hooks/manga/useChapterList';
 
 import { useOutletContext } from 'react-router-dom';
 
