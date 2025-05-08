@@ -6,6 +6,13 @@ const userSchema = mongoose.Schema({
         required: true,
         unique: true,
     },
+    name: {
+        type: String,
+        required: true,
+    },
+
+
+
     email: {
         type: String,
         required: true,
@@ -37,9 +44,11 @@ const userSchema = mongoose.Schema({
     },
     language: {
         type: String,
-        enum: ['English', 'Tiếng Việt'],
-        default: 'English', 
+        enum: ['English', 'Tiếng Việt'],  
+        default: 'English',
       }
+      
+   
 });
 
 export const User = mongoose.model('User', userSchema);

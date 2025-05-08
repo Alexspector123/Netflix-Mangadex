@@ -73,21 +73,25 @@ export default function Profile() {
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      // Lấy các trường từ profileData
-      const { name, email, phone, language } = profileData;
-
-      await axios.put(
-        "/api/v1/user/profile",
-        { userId: user._id, name, email, phone, language },
+      const { name, email, language } = profileData;  // Bỏ phone đi
+  
+      const response = await axios.put(
+        "/api/v1/users/profile",
+        { userId: user._id, name, email, language },  // Gửi các trường cần thiết
         { withCredentials: true }
       );
-      setIsEditing(false);
+  
+      if (response.data.success) {
+        setProfileData(response.data.user);  // Cập nhật dữ liệu mới từ server
+        setIsEditing(false);  // Đóng chế độ chỉnh sửa
+      }
     } catch (err) {
       console.error("Lỗi khi lưu profile:", err);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
@@ -170,7 +174,7 @@ export default function Profile() {
     );
   };
 
-  const renderMediaCard = (item, isFav = false) => (
+  const renderMediaCard = (item) => (
     <div
       key={item.id}
       className="group relative bg-gray-800/70 rounded-xl overflow-hidden shadow-lg border border-gray-700/50 hover:border-red-600 transition-all duration-300"

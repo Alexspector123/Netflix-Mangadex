@@ -28,19 +28,19 @@ export const updateVip = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { userId, name, email, phone, language } = req.body;
+    const { userId, name, email, language } = req.body;  // Bỏ phone
 
     if (!userId) {
       return res.status(400).json({ success: false, message: "Thiếu userId" });
     }
 
-    // Cập nhật các trường name, email, phone, language
+    // Cập nhật các trường name, email, language
     const updated = await User.findByIdAndUpdate(
       userId,
-      { name, email, phone, language },
+      { name, email, language },  // Cập nhật chỉ các trường này
       {
         new: true,           // trả về document sau khi update
-        runValidators: true, // kiểm tra schema (ví dụ: email phải đúng format)
+        runValidators: true, // kiểm tra schema
       }
     );
 
