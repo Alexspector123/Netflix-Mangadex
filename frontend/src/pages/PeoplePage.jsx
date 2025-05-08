@@ -10,7 +10,7 @@ import { ORIGINAL_IMG_BASE_URL } from "../utils/constants.js";
 export default function PeoplePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [featuredPerson, setFeaturedPerson] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [ setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Fetch a featured person for the hero section

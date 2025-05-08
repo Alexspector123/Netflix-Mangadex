@@ -27,7 +27,7 @@ const PeopleDetails = () => {
 
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/original";
   const SMALL_IMG_BASE_URL = "https://image.tmdb.org/t/p/w200";
-  const placeholderImage = "/images/person-placeholder.png";
+  const placeholderImage = "/pf.jpg";
 
   useEffect(() => {
     const fetchData = async () => {

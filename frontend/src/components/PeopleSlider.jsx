@@ -11,7 +11,7 @@ const PeopleSlider = ({ category, title, subtitle }) => {
   const sliderRef = useRef(null);
   
   const SMALL_IMG_BASE_URL = "https://image.tmdb.org/t/p/w200";
-  const placeholderImage = "/images/person-placeholder.png";
+  const placeholderImage = "/pf.jpg";
 
   useEffect(() => {
     const fetchPeople = async () => {
@@ -131,15 +131,16 @@ const PeopleSlider = ({ category, title, subtitle }) => {
               className="min-w-[180px] group flex-shrink-0"
             >
               <div className="rounded-lg overflow-hidden bg-gray-800 shadow-md hover:shadow-lg transition-all duration-300">
-                <div className="aspect-[2/3] bg-gray-700">
-                  <img
-                    src={person.profile_path ? `${SMALL_IMG_BASE_URL}${person.profile_path}` : placeholderImage}
-                    alt={person.name}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    loading="lazy"
-                    onError={(e) => { e.target.src = placeholderImage }}
-                  />
-                </div>
+              <div className="h-[270px] w-[180px] bg-gray-700">
+  <img
+    src={person.profile_path ? `${SMALL_IMG_BASE_URL}${person.profile_path}` : placeholderImage}
+    alt={person.name}
+    className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+    loading="lazy"
+    onError={(e) => { e.target.src = placeholderImage }}
+  />
+</div>
+
                 <div className="p-3">
                   <p className="font-medium text-center truncate">{person.name}</p>
                   {person.known_for_department && (
