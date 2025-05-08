@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useContentStore } from "../store/content";
 import axios from "axios";
 
-import { ChevronLeft, ChevronRight, Star, Clock, Calendar, Film, Users, Globe, Info, CirclePlus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Clock, Calendar, Film, Users, Globe, Info, CirclePlus, LibraryBig } from "lucide-react";
 import ReactPlayer from "react-player";
 import toast from "react-hot-toast";
 
@@ -30,7 +30,7 @@ const WatchPage = () => {
 	const { contentType } = useContentStore();
 	const [isFavourite, setIsFavourite] = useState(false);
 
-	const [mangaData, SetMangaData] = useState({manga: []});
+	const [mangaData, SetMangaData] = useState({ manga: [] });
 	const [showReadModal, setShowReadModal] = useState(false);
 
 	const sliderRef = useRef(null);
@@ -40,14 +40,14 @@ const WatchPage = () => {
 	const readModalRef = useRef();
 	useEffect(() => {
 		const handleClickOutsideDesktop = (e) => {
-		  if (readModalRef.current && readModalRef.current.contains(e.target)) {
-			setShowReadModal(false);
-		  }
+			if (readModalRef.current && readModalRef.current.contains(e.target)) {
+				setShowReadModal(false);
+			}
 		};
-	
+
 		document.addEventListener("mousedown", handleClickOutsideDesktop);
 		return () => {
-		  document.removeEventListener("mousedown", handleClickOutsideDesktop);
+			document.removeEventListener("mousedown", handleClickOutsideDesktop);
 		};
 	}, []);
 
@@ -135,8 +135,8 @@ const WatchPage = () => {
 
 	useEffect(() => {
 		const getManga = async () => {
-			if(!content?.name?.trim()){
-				SetMangaData({manga:[]});
+			if (!content?.name?.trim()) {
+				SetMangaData({ manga: [] });
 				return;
 			}
 			try {
@@ -196,7 +196,7 @@ const WatchPage = () => {
 
 	return (
 		<div className='transition-all duration-200'>
-		    {showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={allChapters}/>}
+			{showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={allChapters} />}
 			<div
 				className="bg-gradient-to-b from-black to-gray-900 min-h-screen text-white"
 				style={{
@@ -266,15 +266,28 @@ const WatchPage = () => {
 
 						<div className="flex-1">
 							<div className="flex items-center justify-between">
+								{/* Tiêu đề */}
 								<h2 className="text-4xl md:text-5xl font-bold">{content.title || content.name}</h2>
-								<button
-									onClick={handleAddToFavourites}
-									disabled={isFavourite}
-									className="text-white p-2 rounded-full hover:bg-gray-800/50"
-								>
-									<CirclePlus size={28} fill={isFavourite ? 'white' : 'none'} />
-								</button>
+
+								{/* NHÓM NÚT */}
+								<div className="flex items-center gap-0.5">
+									{/* 1) Add to favourites */}
+									<button
+										onClick={handleAddToFavourites}
+										disabled={isFavourite}
+										className="p-2 rounded-full transition hover:bg-gray-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
+									>
+										<CirclePlus size={28} fill={isFavourite ? 'white' : 'none'} />
+									</button>
+									{/* Manga button */}
+									{mangaData && (
+										<button className="p-2 rounded-full transition hover:bg-gray-800/50"
+											onClick={() => setShowReadModal(true)}><LibraryBig size={28} />
+										</button>
+									)}
+								</div>
 							</div>
+
 
 
 							<div className="flex flex-wrap items-center gap-4 mt-3 text-gray-300">
@@ -399,36 +412,21 @@ const WatchPage = () => {
 						</div>
 					</div>
 
-					{/* Manga button */}
-					{mangaData && (
-						<button className="bg-blue-500 hover:bg-blue-600
-						p-4
-						text-lg
-						text-white font-semibold
-						cursor-pointer
-						rounded
-						transition-all duration-200
-						mx-auto 2xl:ml-45
-						"
-						onClick={() => setShowReadModal(true)}>Read Manga<BiNavigation className="text-xl inline ml-2"/>
-						</button>
-					)}
-
 
 					{/* Cast Information */}
 					{cast.length > 0 && (
-						<div className="mt-12 max-w-6xl mx-auto relative">
-							<h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+						<div className="mt-12 max-w-4xl mx-auto">
+							<h3 className="text-2xl font-bold mb-4 pl-2 flex items-center gap-2">
 								<Users size={24} /> Cast
 							</h3>
 
-							<div className="relative">
+							<div className="relative px-12">
 								<div
-									className="flex overflow-x-scroll scrollbar-hide gap-4 pb-4 px-4"
+									className="flex overflow-x-scroll scrollbar-hide gap-4 pb-1 px-2 snap-x"
 									ref={castSliderRef}
 								>
-									{cast.slice(0, 20).map((person) => (
-										<div key={person.id} className="w-36 flex-none">
+									{cast.slice(0, 20).map((person, index) => (
+										<div key={person.id} className={`w-36 flex-none ${index % 5 === 0 ? 'scroll-snap-start' : ''}`}>
 											<img
 												src={person.profile_path
 													? SMALL_IMG_BASE_URL + person.profile_path
@@ -443,15 +441,15 @@ const WatchPage = () => {
 								</div>
 
 								<ChevronRight
-									className="absolute top-1/2 -translate-y-1/2 right-2 w-10 h-10
-										bg-red-600 hover:bg-red-700 text-white rounded-full p-2
-										shadow-lg cursor-pointer transition-all duration-300"
+									className="absolute top-1/2 -translate-y-1/2 right-0 w-10 h-10
+                    bg-red-600 hover:bg-red-700 text-white rounded-full p-2
+                    shadow-lg cursor-pointer transition-all duration-300"
 									onClick={() => scrollRight(castSliderRef)}
 								/>
 								<ChevronLeft
-									className="absolute top-1/2 -translate-y-1/2 left-2 w-10 h-10
-										bg-red-600 hover:bg-red-700 text-white rounded-full p-2
-										shadow-lg cursor-pointer transition-all duration-300"
+									className="absolute top-1/2 -translate-y-1/2 left-0 w-10 h-10
+                    bg-red-600 hover:bg-red-700 text-white rounded-full p-2
+                    shadow-lg cursor-pointer transition-all duration-300"
 									onClick={() => scrollLeft(castSliderRef)}
 								/>
 							</div>
@@ -460,21 +458,21 @@ const WatchPage = () => {
 
 					{/* Similar Content */}
 					{similarContent.length > 0 && (
-						<div className="mt-12 max-w-6xl mx-auto relative">
-							<h3 className="text-2xl font-bold mb-4">Similar {contentType === "movie" ? "Movies" : "Shows"}</h3>
+						<div className="mt-12 max-w-3.2xl mx-auto">
+							<h3 className="text-2xl font-bold mb-4 pl-2">Similar {contentType === "movie" ? "Movies" : "Shows"}</h3>
 
-							<div className="relative">
+							<div className="relative px-12">
 								<div
-									className="flex overflow-x-scroll scrollbar-hide gap-4 pb-4 px-4"
+									className="flex overflow-x-scroll scrollbar-hide gap-4 pb-4 px-2 snap-x"
 									ref={sliderRef}
 								>
-									{similarContent.map((content) => {
+									{similarContent.map((content, index) => {
 										if (content.poster_path === null) return null;
 										return (
 											<Link
 												key={content.id}
 												to={`/watch/${content.id}`}
-												className="w-48 flex-none hover:scale-105 transition-transform duration-300"
+												className={`w-48 flex-none hover:scale-105 transition-transform duration-300 ${index % 4 === 0 ? 'scroll-snap-start' : ''}`}
 											>
 												<img
 													src={SMALL_IMG_BASE_URL + content.poster_path}
@@ -496,15 +494,15 @@ const WatchPage = () => {
 								</div>
 
 								<ChevronRight
-									className="absolute top-1/2 -translate-y-1/2 right-2 w-10 h-10
-										bg-red-600 hover:bg-red-700 text-white rounded-full p-2
-										shadow-lg cursor-pointer transition-all duration-300"
+									className="absolute top-1/2 -translate-y-1/2 right-0 w-10 h-10
+                    bg-red-600 hover:bg-red-700 text-white rounded-full p-2
+                    shadow-lg cursor-pointer transition-all duration-300"
 									onClick={() => scrollRight(sliderRef)}
 								/>
 								<ChevronLeft
-									className="absolute top-1/2 -translate-y-1/2 left-2 w-10 h-10
-										bg-red-600 hover:bg-red-700 text-white rounded-full p-2
-										shadow-lg cursor-pointer transition-all duration-300"
+									className="absolute top-1/2 -translate-y-1/2 left-0 w-10 h-10
+                    bg-red-600 hover:bg-red-700 text-white rounded-full p-2
+                    shadow-lg cursor-pointer transition-all duration-300"
 									onClick={() => scrollLeft(sliderRef)}
 								/>
 							</div>

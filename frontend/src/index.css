@@ -303,3 +303,6 @@ body {
   bottom: 0;
   z-index: 1000;
 }
+
+.touch-none       { touch-action: none; }     
+.disable-scroll-x { overflow-x: hidden; }
