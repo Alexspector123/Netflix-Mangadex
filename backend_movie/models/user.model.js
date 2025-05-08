@@ -35,6 +35,11 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    language: {
+        type: String,
+        enum: ['English', 'Tiếng Việt'],
+        default: 'English', 
+      }
 });
 
 export const User = mongoose.model('User', userSchema);
