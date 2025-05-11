@@ -72,7 +72,7 @@ export default function Profile() {
 
       await axios.put(
         "/api/v1/user/profile",
-        { userId: user._id, name, email, phone, language },
+        { userId: user.userId, name, email, phone, language },
         { withCredentials: true }
       );
       setIsEditing(false);

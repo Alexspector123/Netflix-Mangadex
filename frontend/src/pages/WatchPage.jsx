@@ -400,7 +400,7 @@ const WatchPage = () => {
 					</div>
 
 					{/* Manga button */}
-					{mangaData && (
+					{mangaData.manga.length > 0 && (
 						<button className="bg-blue-500 hover:bg-blue-600
 						p-4
 						text-lg

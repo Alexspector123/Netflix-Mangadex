@@ -21,7 +21,9 @@ export const protectRoute = async (req, res, next) => {
     }
 
     // Tìm user từ database dựa vào userId
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findByPk(decoded.userId, {
+      attributes: { exclude: ["password"] },
+    });
 
     // Kiểm tra nếu không tìm thấy user
     if (!user) {
