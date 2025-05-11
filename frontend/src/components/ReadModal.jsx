@@ -21,7 +21,7 @@ const ReadModal = ({ readModalRef, onClose, allChapters }) => {
     <div>
         <div ref={readModalRef} className="sm:fixed sm:inset-0 sm:bg-black/50 sm:backdrop-blur-sm sm:z-20"></div>
 
-        <div className="absolute
+        <div className="fixed
                         top-1/2 left-1/2 
                         transform -translate-x-1/2 -translate-y-1/2 
                         bg-white z-30
@@ -32,10 +32,9 @@ const ReadModal = ({ readModalRef, onClose, allChapters }) => {
                         flex flex-col">
            <div className='flex items-center justify-between
                             text-xl
-                            px-6 py-4
-                            cursor-pointer'>
+                            px-6 py-4'>
                 <div>Select Group</div>
-                <IoClose onClick={onClose}/>
+                <IoClose className='cursor-pointer' onClick={onClose}/>
             </div>
            <div className='text-sm
                             px-6 pb-5
