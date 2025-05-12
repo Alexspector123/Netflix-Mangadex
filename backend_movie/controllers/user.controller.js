@@ -30,7 +30,7 @@ export const updateVip = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { userId, name, email, phone, language } = req.body;
+    const { userId, name, email, language } = req.body;  // Bỏ phone
 
     if (!userId) {
       return res.status(400).json({ success: false, message: "Thiếu userId" });
@@ -38,10 +38,10 @@ export const updateProfile = async (req, res) => {
 
     const query = `
       UPDATE Users
-      SET name = ?, email = ?, phone = ?, language = ?
+      SET name = ?, email = ?, language = ?
       WHERE userId = ?;
     `;
-    const values = [name, email, phone, language, userId];
+    const values = [name, email, language, userId];
 
     const [result] = await db.query(query, values);
 

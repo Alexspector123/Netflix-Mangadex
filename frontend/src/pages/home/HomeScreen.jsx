@@ -206,7 +206,7 @@ export default function HomeScreen() {
       </div>
 
       {/* CATEGORY SLIDERS */}
-      <div className="flex flex-col gap-10 bg-black py-10">
+      <div className="flex flex-col gap-25 bg-black py-10">
         {(contentType === "movie" ? MOVIE_CATEGORIES : TV_CATEGORIES).map(
           (category) => (
             <MovieSlider key={category} category={category} />

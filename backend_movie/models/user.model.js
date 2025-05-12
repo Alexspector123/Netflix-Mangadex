@@ -7,7 +7,6 @@ export const User = {
     const [rows] = await db.query(query, [userId]);
     return rows.length > 0 ? rows[0] : null;
   },
-
   async findOne(whereClause) {
     const conditions = Object.keys(whereClause)
       .map((key) => `${key} = ?`)
