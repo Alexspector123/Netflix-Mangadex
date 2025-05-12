@@ -1,9 +1,8 @@
 import { fetchFromTMDB } from "../services/tmdb.service.js";
-import { User } from "../models/user.model.js";
-import { Op, Sequelize } from "sequelize";
+import { db } from "../config/db.js";
 
 const cache = new Map();
-const TTL = 300000; // 5 minutes
+const TTL = 300000;
 
 const getCached = (k) => {
   const e = cache.get(k);
@@ -46,26 +45,31 @@ export async function searchPerson(req, res) {
     setCached(cacheKey, filtered);
     res.json({ success: true, content: filtered });
 
-    if (req.user && filtered.length)
-      await User.update(
-        {
-          searchHistory: Sequelize.fn(
-            'json_array_append',
-            Sequelize.col('searchHistory'),
-            '$',
-            JSON.stringify({
-              id: filtered[0].id,
-              image: filtered[0].profile_path,
-              title: filtered[0].name,
-              searchType: 'person',
-              createdAt: new Date()
-            })
-          )
-        },
-        {
-          where: { id: req.user.userId }
-        }
-      ).catch(() => {});
+    if (req.user && filtered.length) {
+      const query = `
+        UPDATE Users
+        SET searchHistory = JSON_ARRAY_APPEND(
+          searchHistory, '$', CAST(? AS JSON)
+        )
+        WHERE userId = ?;
+      `;
+      const values = [
+        JSON.stringify({
+          id: filtered[0].id,
+          image: filtered[0].profile_path,
+          title: filtered[0].name,
+          searchType: 'person',
+          createdAt: new Date()
+        }),
+        req.user.userId
+      ];
+
+      try {
+        await db.query(query, values);
+      } catch (error) {
+        console.error('Failed to update search history:', error.message);
+      }
+    }
   } catch (err) {
     console.error('searchPerson:', err.message);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
@@ -85,25 +89,29 @@ export async function searchMovie(req, res) {
     }
 
     if (query) {
-      await User.update(
-        {
-          searchHistory: Sequelize.fn(
-            'json_array_append',
-            Sequelize.col('searchHistory'),
-            '$',
-            JSON.stringify({
-              id: response.results[0].id,
-              image: response.results[0].poster_path,
-              title: response.results[0].title,
-              searchType: "movie",
-              createdAt: new Date()
-            })
-          )
-        },
-        {
-          where: { id: req.user.userId }
-        }
-      );
+      const query = `
+        UPDATE Users
+        SET searchHistory = JSON_ARRAY_APPEND(
+          searchHistory, '$', CAST(? AS JSON)
+        )
+        WHERE userId = ?;
+      `;
+      const values = [
+        JSON.stringify({
+          id: response.results[0].id,
+          image: response.results[0].poster_path,
+          title: response.results[0].title,
+          searchType: 'movie',
+          createdAt: new Date()
+        }),
+        req.user.userId
+      ];
+
+      try {
+        await db.query(query, values);
+      } catch (error) {
+        console.error('Failed to update search history:', error.message);
+      }
     }
 
     res.status(200).json({ success: true, content: response.results });
@@ -126,25 +134,29 @@ export async function searchTv(req, res) {
     }
 
     if (query) {
-      await User.update(
-        {
-          searchHistory: Sequelize.fn(
-            'json_array_append',
-            Sequelize.col('searchHistory'),
-            '$',
-            JSON.stringify({
-              id: response.results[0].id,
-              image: response.results[0].poster_path,
-              title: response.results[0].name,
-              searchType: "tv",
-              createdAt: new Date()
-            })
-          )
-        },
-        {
-          where: { id: req.user.userId }
-        }
-      );
+      const query = `
+        UPDATE Users
+        SET searchHistory = JSON_ARRAY_APPEND(
+          searchHistory, '$', CAST(? AS JSON)
+        )
+        WHERE userId = ?;
+      `;
+      const values = [
+        JSON.stringify({
+          id: response.results[0].id,
+          image: response.results[0].poster_path,
+          title: response.results[0].name,
+          searchType: 'tv',
+          createdAt: new Date()
+        }),
+        req.user.userId
+      ];
+
+      try {
+        await db.query(query, values);
+      } catch (error) {
+        console.error('Failed to update search history:', error.message);
+      }
     }
 
     res.status(200).json({ success: true, content: response.results });
@@ -167,18 +179,16 @@ export async function removeItemFromSearchHistory(req, res) {
   id = parseInt(id);
 
   try {
-    await User.update(
-      {
-        searchHistory: Sequelize.fn(
-          'json_array_remove',
-          Sequelize.col('searchHistory'),
-          JSON.stringify({ id: id })
-        )
-      },
-      {
-        where: { id: req.user.userId }
-      }
-    );
+    const query = `
+      UPDATE Users
+      SET searchHistory = JSON_REMOVE(
+        searchHistory, JSON_UNQUOTE(JSON_SEARCH(searchHistory, 'one', ?))
+      )
+      WHERE userId = ?;
+    `;
+    const values = [id, req.user.userId];
+
+    await db.query(query, values);
     res.status(200).json({ success: true, message: "Item removed from search history" });
   } catch (error) {
     console.log("Error in remove item from search history controller: " + error.message);
@@ -188,20 +198,20 @@ export async function removeItemFromSearchHistory(req, res) {
 
 export const clearSearchHistory = async (req, res) => {
   try {
-    await User.update(
-      {
-        searchHistory: []
-      },
-      {
-        where: { id: req.user.userId }
-      }
-    );
+    const query = `
+      UPDATE Users
+      SET searchHistory = '[]'
+      WHERE userId = ?;
+    `;
+    const values = [req.user.userId];
+
+    await db.query(query, values);
     res.status(200).json({ success: true, message: "All search history cleared" });
   } catch (err) {
     console.error("Error clearing history:", err);
     res.status(500).json({ success: false, error: "Failed to clear history" });
   }
-}
+};
 
 export async function getFavouritesHistory(req, res) {
   try {
@@ -223,18 +233,16 @@ export async function removeItemFromFavouritesHistory(req, res) {
   id = parseInt(id);
 
   try {
-    await User.update(
-      {
-        favourites: Sequelize.fn(
-          'json_array_remove',
-          Sequelize.col('favourites'),
-          JSON.stringify({ id: id })
-        )
-      },
-      {
-        where: { id: req.user.userId }
-      }
-    );
+    const query = `
+      UPDATE Users
+      SET favourites = JSON_REMOVE(
+        favourites, JSON_UNQUOTE(JSON_SEARCH(favourites, 'one', ?))
+      )
+      WHERE userId = ?;
+    `;
+    const values = [id, req.user.userId];
+
+    await db.query(query, values);
     res.status(200).json({ success: true, message: "Item removed from favourite history" });
   } catch (error) {
     console.log("Error in remove item from favourite history controller: " + error.message);
@@ -250,34 +258,36 @@ export async function addToFavourites(req, res) {
   }
 
   try {
-    // Check if this item already exists in favourites
-    const user = await User.findByPk(req.user.userId);
-    const exists = user.favourites.some((item) => item.id === id);
+    const query = `
+      SELECT favourites FROM Users WHERE userId = ?;
+    `;
+    const [rows] = await db.query(query, [req.user.userId]);
+    const favourites = JSON.parse(rows[0].favourites || '[]');
 
+    const exists = favourites.some((item) => item.id === id);
     if (exists) {
       return res.status(200).json({ success: true, message: "Already in favourites" });
     }
 
-    await User.update(
-      {
-        favourites: Sequelize.fn(
-          'json_array_append',
-          Sequelize.col('favourites'),
-          '$',
-          JSON.stringify({
-            id: id,
-            image: image,
-            title: title,
-            searchType: type,
-            createdAt: new Date()
-          })
-        )
-      },
-      {
-        where: { id: req.user.userId }
-      }
-    );
+    const updateQuery = `
+      UPDATE Users
+      SET favourites = JSON_ARRAY_APPEND(
+        favourites, '$', CAST(? AS JSON)
+      )
+      WHERE userId = ?;
+    `;
+    const values = [
+      JSON.stringify({
+        id: id,
+        image: image,
+        title: title,
+        searchType: type,
+        createdAt: new Date()
+      }),
+      req.user.userId
+    ];
 
+    await db.query(updateQuery, values);
     res.status(200).json({ success: true, message: "Added to favourites" });
   } catch (error) {
     console.log("Error in addToFavourites controller: ", error.message);
@@ -287,17 +297,17 @@ export async function addToFavourites(req, res) {
 
 export const clearFavouriteHistory = async (req, res) => {
   try {
-    await User.update(
-      {
-        favourites: []
-      },
-      {
-        where: { id: req.user.userId }
-      }
-    );
-    res.status(200).json({ success: true, message: "All search history cleared" });
+    const query = `
+      UPDATE Users
+      SET favourites = '[]'
+      WHERE userId = ?;
+    `;
+    const values = [req.user.userId];
+
+    await db.query(query, values);
+    res.status(200).json({ success: true, message: "All favourite history cleared" });
   } catch (err) {
     console.error("Error clearing history:", err);
     res.status(500).json({ success: false, error: "Failed to clear history" });
   }
-}
+};

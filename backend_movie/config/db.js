@@ -1,15 +1,21 @@
-import { Sequelize } from "sequelize";
+import mysql from "mysql2/promise";
 import { ENV_VARS } from "./envVars.js";
 
-export const sequelize = new Sequelize(ENV_VARS.MYSQL_DB, ENV_VARS.MYSQL_USER, ENV_VARS.MYSQL_PASSWORD, {
+export const db = mysql.createPool({
     host: ENV_VARS.MYSQL_HOST,
-    dialect: "mysql",
+    user: ENV_VARS.MYSQL_USER,
+    password: ENV_VARS.MYSQL_PASSWORD,
+    database: ENV_VARS.MYSQL_DB,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 export const connectDB = async () => {
     try {
-        await sequelize.authenticate();
+        const connection = await db.getConnection();
         console.log("MySQL connected successfully.");
+        connection.release();
     } catch (error) {
         console.error("Unable to connect to MySQL:", error.message);
         process.exit(1);

@@ -4,8 +4,9 @@
   "description": "",
   "main": "backend/server.js",
   "scripts": {
-    "dev": "nodemon backend_movie/server.js",
-    "start": "nodemon backend_manga/server.js"
+    "dev": "nodemon gateway/server.js",
+    "start1": "nodemon backend_movie/server.js",
+    "start2": "nodemon backend_manga/server.js"
   },
   "repository": {
     "type": "git",
