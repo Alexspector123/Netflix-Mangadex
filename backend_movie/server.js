@@ -11,7 +11,7 @@ import notificationRoutes from "./routes/notification.route.js";
 import userRoutes from "./routes/user.route.js"; // 👉 Import thêm route mới
 
 import { ENV_VARS } from "./config/envVars.js";
-import { connectDB, db } from "./config/db.js"; // Adjusted import to include db
+import { connectDB, db, initializeTables } from "./config/db.js"; // Adjusted import to include db
 import { protectRoute } from "./middleware/protectRoute.js";
 import cors from "cors";
 
@@ -39,21 +39,7 @@ app.use("/api/v1/users",protectRoute, userRoutes);
 const startServer = async () => {
     try {
         await connectDB();
-
-        const createUsersTableQuery = `
-            CREATE TABLE IF NOT EXISTS Users (
-                userId INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(255) NOT NULL UNIQUE,
-                email VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                image VARCHAR(255) DEFAULT '',
-                searchHistory JSON,
-                favourites JSON,
-                isVip BOOLEAN DEFAULT FALSE,
-                isAdmin BOOLEAN DEFAULT FALSE
-            );
-        `;
-        await db.query(createUsersTableQuery);
+        await initializeTables();
 
         console.log("Database is ready.");
 
