@@ -94,6 +94,8 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
       }
     }
 
+  console.log('Grouped Chapter:', groupedChapter);
+
   return (
     <>
     {!isChapterLoading && (

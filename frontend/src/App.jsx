@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/home/HomePage";
 import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
+import SignUpPage from "./pages/SignupPage";
 import WatchPage from "./pages/WatchPage";
 import Footer from "./components/Footer";
 import { Toaster } from "react-hot-toast";
@@ -20,6 +20,7 @@ import PeopleDetails from "./pages/PeopleDetailsPage";
 import VipPage from "./pages/VipPage.jsx";
 import ChapPage from "./pages/ChapPage.jsx";
 import ChapLayout from "./layout/ChapLayout.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
 
 function App() {
 	const { user, isCheckingAuth, authCheck } = useAuthStore();
@@ -50,6 +51,7 @@ function App() {
 				<Route path='/' element={<HomePage />} />
 				<Route path='/login' element={!user ? <LoginPage /> : <Navigate to={"/"} />} />
 				<Route path='/signup' element={!user ? <SignUpPage /> : <Navigate to={"/"} />} />
+				<Route path='/auth' element={!user ? <AuthPage /> : <Navigate to = {"/"} />} />
 				<Route path='/watch/:id' element={user ? <WatchPage /> : <Navigate to={"/login"} />} />
 				<Route path='/search' element={user ? <SearchPage /> : <Navigate to={"/login"} />} />
 				<Route path='/profile' element={<Profile/>} />
