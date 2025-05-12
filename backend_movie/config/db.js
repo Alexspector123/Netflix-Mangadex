@@ -37,6 +37,7 @@ export const initializeTables = async () => {
                     username VARCHAR(255) NOT NULL UNIQUE,
                     email VARCHAR(255) NOT NULL UNIQUE,
                     password VARCHAR(255) NOT NULL,
+                    language ENUM('English', 'Tiếng Việt') DEFAULT 'English',
                     image VARCHAR(255) DEFAULT '',
                     searchHistory JSON,
                     favourites JSON,
