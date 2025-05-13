@@ -31,14 +31,13 @@ export const updateVip = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { userId, name, email, language } = req.body;  // Bỏ phone
-
     if (!userId) {
       return res.status(400).json({ success: false, message: "Thiếu userId" });
     }
 
     const query = `
       UPDATE Users
-      SET name = ?, email = ?, language = ?
+      SET username = ?, email = ?, language = ?
       WHERE userId = ?;
     `;
     const values = [name, email, language, userId];

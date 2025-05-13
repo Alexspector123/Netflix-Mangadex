@@ -71,18 +71,20 @@ export default function Profile() {
   }, [activeTab]);
 
   const handleSave = async () => {
+    
     try {
       setIsLoading(true);
       // Lấy các trường từ profileData
       const { name, email, language } = profileData;
-
-      await axios.put(
-        "/api/v1/user/profile",
+      
+      const response = await axios.put(
+        "/api/v1/users/profile",
         { userId: user.userId, name, email, language },
         { withCredentials: true }
       );
   
       if (response.data.success) {
+        console.log("123", response.data.user);
         setProfileData(response.data.user);  // Cập nhật dữ liệu mới từ server
         setIsEditing(false);  // Đóng chế độ chỉnh sửa
       }
