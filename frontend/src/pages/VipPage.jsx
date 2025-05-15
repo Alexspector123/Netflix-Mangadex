@@ -10,7 +10,7 @@ const VipPage = () => {
   const { user } = useAuthStore();
 
   const handleVipPurchase = async () => {
-    if (!user || !user.userId) {
+    if (!user || !user.id) {
       toast.error("Không tìm thấy thông tin người dùng!");
       return;
     }
@@ -18,7 +18,7 @@ const VipPage = () => {
     try {
       // Gọi API để cập nhật role của người dùng thành VIP
       const response = await axios.post('/api/v1/users/update-vip', {
-        userId: user.userId,
+        userId: user.id,
       }, {
         withCredentials: true // Đảm bảo token được gửi trong cookie
       });

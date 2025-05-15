@@ -37,12 +37,12 @@ const AuthPage = () => {
 
     const handleLogin = (e) => {
 		e.preventDefault();
-		login({ logInEmail, logInPassword });
+		login({ email: logInEmail, password: logInPassword });
 	};
 
     const handleSignUp = (e) => {
 		e.preventDefault();
-		signup({ signUpEmail, username, signUpPassword });
+		signup({ email: signUpEmail, username, password: signUpPassword });
 	};
 
     return (

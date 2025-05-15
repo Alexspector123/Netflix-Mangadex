@@ -71,12 +71,11 @@ export default function Profile() {
   }, [activeTab]);
 
   const handleSave = async () => {
-    
     try {
       setIsLoading(true);
       // Lấy các trường từ profileData
       const { name, email, language } = profileData;
-      
+
       const response = await axios.put(
         "/api/v1/users/profile",
         { userId: user.userId, name, email, language },
