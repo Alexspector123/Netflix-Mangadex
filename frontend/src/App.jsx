@@ -52,16 +52,16 @@ function App() {
 				<Route path='/login' element={!user ? <LoginPage /> : <Navigate to={"/"} />} />
 				<Route path='/signup' element={!user ? <SignUpPage /> : <Navigate to={"/"} />} />
 				<Route path='/auth' element={!user ? <AuthPage /> : <Navigate to = {"/"} />} />
-				<Route path='/watch/:id' element={user ? <WatchPage /> : <Navigate to={"/login"} />} />
-				<Route path='/search' element={user ? <SearchPage /> : <Navigate to={"/login"} />} />
+				<Route path='/watch/:id' element={user ? <WatchPage /> : <Navigate to={"/auth"} />} />
+				<Route path='/search' element={user ? <SearchPage /> : <Navigate to={"/auth"} />} />
 				<Route path='/profile' element={<Profile/>} />
-				<Route path='/people' element={user  ? <PeoplePage /> : <Navigate to="/login" />} />
-				<Route path='/people/:id' element={user ? <PeopleDetails /> : <Navigate to="/login" />} />
+				<Route path='/people' element={user  ? <PeoplePage /> : <Navigate to="/auth" />} />
+				<Route path='/people/:id' element={user ? <PeopleDetails /> : <Navigate to="/auth" />} />
 				<Route path='/notifications' element={<NotificationsPage/>} />
-				<Route path='/history' element={user ? <SearchHistoryPage /> : <Navigate to={"/login"} />} />
-				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/login"} />} />
+				<Route path='/history' element={user ? <SearchHistoryPage /> : <Navigate to={"/auth"} />} />
+				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/auth"} />} />
 				<Route path='/*' element={<NotFoundPage />} />
-				<Route path='/register-vip' element={user ? <VipPage /> : <Navigate to={"/login"} />} />
+				<Route path='/register-vip' element={user ? <VipPage /> : <Navigate to={"/auth"} />} />
 				<Route path="/chapter" element={<ChapLayout />}>
 					<Route path=":id/:page" element={<ChapPage />}/>
 				</Route>

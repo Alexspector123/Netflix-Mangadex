@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useContentStore } from "../store/content";
 import axios from "axios";
 
-import { ChevronLeft, ChevronRight, Star, Clock, Calendar, Film, Users, Globe, Info, CirclePlus, LibraryBig } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Clock, Calendar, Film, Users, Globe, Info, CirclePlus, LibraryBig, Upload } from "lucide-react";
 import ReactPlayer from "react-player";
 import toast from "react-hot-toast";
 
@@ -14,8 +14,10 @@ import Navbar from "../components/Navbar";
 import WatchPageSkeleton from "../components/skeletons/WatchPageSkeleton";
 import useChapterList from "../hooks/manga/useChapterList";
 import ReadModal from "../components/ReadModal";
+import UploadModal from "../components/UploadModal";
 
 import { BiNavigation } from "react-icons/bi";
+import { GrUpload } from "react-icons/gr";
 
 const WatchPage = () => {
 	const { id } = useParams();
@@ -32,6 +34,7 @@ const WatchPage = () => {
 
 	const [mangaData, SetMangaData] = useState({ manga: [] });
 	const [showReadModal, setShowReadModal] = useState(false);
+	const [showUploadModal, setShowUploadModal] = useState(false);
 
 	const sliderRef = useRef(null);
 	const castSliderRef = useRef(null);
@@ -42,6 +45,21 @@ const WatchPage = () => {
 		const handleClickOutsideDesktop = (e) => {
 			if (readModalRef.current && readModalRef.current.contains(e.target)) {
 				setShowReadModal(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutsideDesktop);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutsideDesktop);
+		};
+	}, []);
+	
+	// For upload manga modal
+	const uploadModalRef = useRef();
+	useEffect(() => {
+		const handleClickOutsideDesktop = (e) => {
+			if (uploadModalRef.current && uploadModalRef.current.contains(e.target)) {
+				setShowUploadModal(false);
 			}
 		};
 
@@ -197,6 +215,7 @@ const WatchPage = () => {
 	return (
 		<div className='transition-all duration-200'>
 			{showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={allChapters} />}
+			{showUploadModal && <UploadModal uploadModalRef={uploadModalRef} onClose={() => setShowUploadModal(false)}/>}
 			<div
 				className="bg-gradient-to-b from-black to-gray-900 min-h-screen text-white"
 				style={{
@@ -426,6 +445,19 @@ const WatchPage = () => {
 						onClick={() => setShowReadModal(true)}>Read Manga<BiNavigation className="text-xl inline ml-2"/>
 						</button>
 					)}
+
+					{/* Upload Button */}
+					<button className="bg-red-600 hover:bg-red-700
+						p-4
+						text-lg
+						text-white font-semibold
+						cursor-pointer
+						rounded
+						transition-all duration-200
+						mx-auto 2xl:ml-6
+						"
+						onClick={() => setShowUploadModal(true)}>Upload<GrUpload className="text-xl inline ml-2"/>
+					</button>
 
 					{/* Cast Information */}
 					{cast.length > 0 && (

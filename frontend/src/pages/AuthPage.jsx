@@ -139,14 +139,14 @@ const AuthPage = () => {
                     <div className="overlay-container">
                         <div className="overlay">
                             <div className="overlay-panel overlay-left">
-                            <h1 className="auth-h1 text-white">Welcome Back!</h1>
+                            <h1 className="auth-h1-overlay">Welcome Back!</h1>
                             <p className="auth-p">To keep connected with us please login with your personal info</p>
                             <button className="ghost auth-button" onClick={handleSignInClick}>
                                 Login
                             </button>
                             </div>
                             <div className="overlay-panel overlay-right">
-                            <h1 className="auth-h1 text-white">Hello, Friend!</h1>
+                            <h1 className="auth-h1-overlay">Hello, Friend!</h1>
                             <p className="auth-p">Enter your personal details and start journey with us</p>
                             <button className="ghost auth-button" onClick={handleSignUpClick}>
                                 Sign Up
