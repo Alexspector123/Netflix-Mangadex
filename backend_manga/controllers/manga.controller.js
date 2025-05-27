@@ -74,3 +74,41 @@ export const fetchVolumeListByID = async (req, res) => {
     return res.status(500).json({ error: 'An error occurred while fetching chapter data.' });
   }
 }
+
+// Add a new manga with image upload and duplicate check
+export const addManga = async (req, res) => {
+    try {
+        const { title, description, status } = req.body;
+
+        if (!title) {
+            return res.status(400).json({ message: "Thiếu tiêu đề manga" });
+        }
+
+        const [existing] = await db.execute("SELECT * FROM Manga WHERE title = ?", [title]);
+        if (existing.length > 0) {
+            return res.status(409).json({ message: "Manga is existed" });
+        }
+
+        const [rows] = await db.execute("SELECT manga_id FROM Manga WHERE title = ?", [title]);
+        if (rows.length > 0) {
+          return res.status(409).json({ message: "Manga is existed in database" });
+        }
+
+        // Handle image upload
+        const imageUrl = req.file ? req.file.path : null;
+
+        // Insert new manga
+        const [result] = await db.execute(
+            "INSERT INTO Manga (title, cover_url, status) VALUES (?, ?, ?, ?)",
+            [title, description || "", imageUrl, status || "ongoing"]
+        );
+
+        res.status(201).json({
+            manga_id: result.insertId,
+            cover_url: imageUrl,
+        });
+    } catch (err) {
+        console.error("Upload error:", err);
+        res.status(500).json({ message: "Upload failed!", error: err.message });
+    }
+};

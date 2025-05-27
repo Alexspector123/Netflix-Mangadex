@@ -14,7 +14,7 @@ import Navbar from "../components/Navbar";
 import WatchPageSkeleton from "../components/skeletons/WatchPageSkeleton";
 import useChapterList from "../hooks/manga/useChapterList";
 import ReadModal from "../components/ReadModal";
-import UploadModal from "../components/UploadModal";
+import UploadMangaModal from "../components/UploadMangaModal";
 
 import { BiNavigation } from "react-icons/bi";
 import { GrUpload } from "react-icons/gr";
@@ -34,7 +34,7 @@ const WatchPage = () => {
 
 	const [mangaData, SetMangaData] = useState({ manga: [] });
 	const [showReadModal, setShowReadModal] = useState(false);
-	const [showUploadModal, setShowUploadModal] = useState(false);
+	const [showUploadMangaModal, setShowUploadMangaModal] = useState(false);
 
 	const sliderRef = useRef(null);
 	const castSliderRef = useRef(null);
@@ -55,11 +55,11 @@ const WatchPage = () => {
 	}, []);
 	
 	// For upload manga modal
-	const uploadModalRef = useRef();
+	const uploadMangaModalRef = useRef();
 	useEffect(() => {
 		const handleClickOutsideDesktop = (e) => {
-			if (uploadModalRef.current && uploadModalRef.current.contains(e.target)) {
-				setShowUploadModal(false);
+			if (uploadMangaModalRef.current && uploadMangaModalRef.current.contains(e.target)) {
+				setShowUploadMangaModal(false);
 			}
 		};
 
@@ -215,7 +215,7 @@ const WatchPage = () => {
 	return (
 		<div className='transition-all duration-200'>
 			{showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={allChapters} />}
-			{showUploadModal && <UploadModal uploadModalRef={uploadModalRef} onClose={() => setShowUploadModal(false)}/>}
+			{showUploadMangaModal && <UploadMangaModal uploadMangaModalRef={uploadMangaModalRef} onClose={() => setShowUploadMangaModal(false)}/>}
 			<div
 				className="bg-gradient-to-b from-black to-gray-900 min-h-screen text-white"
 				style={{
@@ -456,7 +456,7 @@ const WatchPage = () => {
 						transition-all duration-200
 						mx-auto 2xl:ml-6
 						"
-						onClick={() => setShowUploadModal(true)}>Upload<GrUpload className="text-xl inline ml-2"/>
+						onClick={() => setShowUploadMangaModal(true)}>Upload<GrUpload className="text-xl inline ml-2"/>
 					</button>
 
 					{/* Cast Information */}

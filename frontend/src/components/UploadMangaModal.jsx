@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const UploadModal = ({ readModalRef, onClose }) => {
+const UploadMangaModal = ({ readModalRef, onClose }) => {
 
     const countries = [
         'United States',
@@ -18,7 +18,6 @@ const UploadModal = ({ readModalRef, onClose }) => {
     const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
-        description: '',
         authorName: '',
         artistName: '',
         country: '',
@@ -26,6 +25,9 @@ const UploadModal = ({ readModalRef, onClose }) => {
         yearCreated: ''
     });
     const [isLoading, setIsLoading] = useState(false);
+    
+    const [image, setImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState("");
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -34,10 +36,16 @@ const UploadModal = ({ readModalRef, onClose }) => {
             [name]: value
         });
     };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setImage(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    };
+
     const handleReset = () => {
         setFormData({
             title: '',
-            description: '',
             authorName: '',
             artistName: '',
             country: '',
@@ -47,6 +55,11 @@ const UploadModal = ({ readModalRef, onClose }) => {
     };
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const data = new FormData();
+        data.append("title", formData.title);
+        data.append("status", formData.status);
+        data.append("image", image);
         setIsLoading(true);
         setTimeout(() => {
             setIsLoading(false);
@@ -99,17 +112,6 @@ const UploadModal = ({ readModalRef, onClose }) => {
                                         placeholder="Title"
                                         required
                                     />
-                                </div>
-                                <div className="relative">
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleInputChange}
-                                        rows={4}
-                                        className="w-full bg-[#333333] text-[#E5E5E5] px-4 py-3 rounded border-none focus:ring-2 focus:ring-[#E50914] outline-none transition-all text-sm resize-none"
-                                        placeholder="Description"
-                                    ></textarea>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="relative">
@@ -197,6 +199,9 @@ const UploadModal = ({ readModalRef, onClose }) => {
                                             maxLength={4}
                                         />
                                     </div>
+                                    <div className='relative'>
+                                        <input type="file" accept="image/*" onChange={handleImageChange} />
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex flex-wrap gap-3 justify-end mt-8">
@@ -229,4 +234,4 @@ const UploadModal = ({ readModalRef, onClose }) => {
     );
 };
 
-export default UploadModal;
+export default UploadMangaModal;
