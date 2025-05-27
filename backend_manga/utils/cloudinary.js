@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import { ENV_VARS } from "../../backend_movie/config/envVars";
+import { ENV_VARS } from "../../backend_movie/config/envVars.js";
 
 cloudinary.config({
   cloud_name: ENV_VARS.CLOUDINARY_CLOUD_NAME,

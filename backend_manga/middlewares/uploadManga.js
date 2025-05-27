@@ -4,14 +4,14 @@ import cloudinary from "../utils/cloudinary.js";
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
+  params: async (req, file) => ({
     folder: "manga/covers",
-    public_id: (req, file) => file.originalname,
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
+    public_id: file.originalname.replace(/\.[^/.]+$/, ""),
+    format: file.mimetype.split("/")[1],
     transformation: [{ width: 800, crop: "limit" }],
-  },
+  }),
 });
 
-const uploadCover = multer({ storage });
+const uploadManga = multer({ storage });
 
-export default uploadCover;
+export default uploadManga;

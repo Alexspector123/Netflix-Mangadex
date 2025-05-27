@@ -32,6 +32,7 @@ const Navbar = () => {
   const settingRef = useRef(null);
   const historyRef = useRef(null);
   const profileRef = useRef(null);
+  
 	const uploadMangaModalRef = useRef();
 	useEffect(() => {
 		const handleClickOutsideDesktop = (e) => {

@@ -83,7 +83,6 @@ export default function Profile() {
       );
   
       if (response.data.success) {
-        console.log("123", response.data.user);
         setProfileData(response.data.user);  // Cập nhật dữ liệu mới từ server
         setIsEditing(false);  // Đóng chế độ chỉnh sửa
       }

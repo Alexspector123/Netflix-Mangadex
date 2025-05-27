@@ -1,5 +1,6 @@
 import axios from 'axios';
 import mangadexLimiter from '../utils/rateLimiter.js';
+import { db } from '../config/db.js';
 
 // Search Manga by Title
 export const searchManga = async (req, res) => {
@@ -75,10 +76,9 @@ export const fetchVolumeListByID = async (req, res) => {
   }
 }
 
-// Add a new manga with image upload and duplicate check
 export const addManga = async (req, res) => {
     try {
-        const { title, description, status } = req.body;
+        const { title, description, status, country } = req.body;
 
         if (!title) {
             return res.status(400).json({ message: "Thiếu tiêu đề manga" });
@@ -99,8 +99,8 @@ export const addManga = async (req, res) => {
 
         // Insert new manga
         const [result] = await db.execute(
-            "INSERT INTO Manga (title, cover_url, status) VALUES (?, ?, ?, ?)",
-            [title, description || "", imageUrl, status || "ongoing"]
+            "INSERT INTO Manga (title, cover_url, status, country) VALUES (?, ?, ?, ?)",
+            [title, imageUrl, status || "ongoing", country]
         );
 
         res.status(201).json({

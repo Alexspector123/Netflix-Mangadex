@@ -27,33 +27,31 @@ export const initializeTables = async () => {
         // Create manga-specific tables only
         await db.query(`
             CREATE TABLE IF NOT EXISTS Manga (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                manga_id INT PRIMARY KEY AUTO_INCREMENT,
                 title VARCHAR(255) NOT NULL,
-                description TEXT,
-                author VARCHAR(255),
-                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                cover_url VARCHAR(500),
+                status ENUM('ongoing', 'completed', 'hiatus') DEFAULT 'ongoing',
+                country VARCHAR(100),
+                year_release VARCHAR(10),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
         await db.query(`
             CREATE TABLE IF NOT EXISTS Chapters (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                mangaId INT NOT NULL,
-                title VARCHAR(255) NOT NULL,
-                content TEXT,
-                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (mangaId) REFERENCES Manga(id) ON DELETE CASCADE
+                chapter_id INT PRIMARY KEY AUTO_INCREMENT,
+                manga_id INT NOT NULL,
+                chapter_number VARCHAR(20),
+                title VARCHAR(255),
+                upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (manga_id) REFERENCES Manga(manga_id) ON DELETE CASCADE
             );
         `);
         await db.query(`
-            CREATE TABLE IF NOT EXISTS MangaFavorites (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                userId INT NOT NULL,
-                mangaId INT NOT NULL,
-                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
-                FOREIGN KEY (mangaId) REFERENCES Manga(id) ON DELETE CASCADE
+            CREATE TABLE IF NOT EXISTS Page (
+                chapter_id INT NOT NULL,
+                page_number INT NOT NULL,
+                image_url VARCHAR(500) NOT NULL,
+                FOREIGN KEY (chapter_id) REFERENCES Chapter(chapter_id) ON DELETE CASCADE
             );
         `);
         console.log("Manga tables ensured in db.");
