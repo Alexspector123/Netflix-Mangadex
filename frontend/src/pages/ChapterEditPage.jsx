@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import AddPageModal from "../components/AddPageModal";
+import AddPageModal from "../components/modals/AddPageModal";
 
 const chapters = [
   { id: "1", number: "1" },

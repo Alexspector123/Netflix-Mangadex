@@ -14,8 +14,8 @@ import Navbar from "../components/Navbar";
 import WatchPageSkeleton from "../components/skeletons/WatchPageSkeleton";
 import useChapterList from "../hooks/manga/useChapterList";
 import useChapterListDB from "../hooks/manga/useChapterListDB";
-import ReadModal from "../components/ReadModal";
-import UploadChapterModal from "../components/UploadChapterModal";
+import ReadModal from "../components/modals/ReadModal";
+import UploadChapterModal from "../components/modals/UploadChapterModal";
 
 import { BiNavigation } from "react-icons/bi";
 import { GrUpload } from "react-icons/gr";

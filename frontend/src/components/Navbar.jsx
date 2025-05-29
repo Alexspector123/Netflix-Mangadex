@@ -7,7 +7,7 @@ import { useUIStore } from "../store/uiStore.js";
 
 import { LuBookUp } from "react-icons/lu";
 
-import UploadMangaModal from "./UploadMangaModal.jsx";
+import UploadMangaModal from "./modals/UploadMangaModal.jsx";
 
 const Navbar = () => {
   // State
