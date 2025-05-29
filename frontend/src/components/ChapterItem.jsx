@@ -4,7 +4,7 @@ import { RiGroupLine } from "react-icons/ri";
 
 const ChapterItem = ({ data }) => {
   if (!data) return null;
-
+  
   return (
     <div className="px-2 py-1 rounded
                   bg-gray-100 hover:bg-gray-200

@@ -255,7 +255,7 @@ const UploadMangaModal = ({ uploadMangaModalRef, onClose }) => {
                                     >
                                       <option value="" disabled>Select Status</option>
                                       <option value="ongoing">ongoing</option>
-                                      <option value="complete">complete</option>
+                                      <option value="completed">completed</option>
                                       <option value="cancelled">cancelled</option>
                                       <option value="hiatus">hiatus</option>
                                     </select>

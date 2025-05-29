@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useContentStore } from "../store/content";
 import axios from "axios";
@@ -13,8 +13,9 @@ import { formatReleaseDate } from "../utils/dateFunction";
 import Navbar from "../components/Navbar";
 import WatchPageSkeleton from "../components/skeletons/WatchPageSkeleton";
 import useChapterList from "../hooks/manga/useChapterList";
+import useChapterListDB from "../hooks/manga/useChapterListDB";
 import ReadModal from "../components/ReadModal";
-import UploadMangaModal from "../components/UploadMangaModal";
+import UploadChapterModal from "../components/UploadChapterModal";
 
 import { BiNavigation } from "react-icons/bi";
 import { GrUpload } from "react-icons/gr";
@@ -34,7 +35,7 @@ const WatchPage = () => {
 
 	const [mangaData, SetMangaData] = useState({ manga: [] });
 	const [showReadModal, setShowReadModal] = useState(false);
-	const [showUploadMangaModal, setShowUploadMangaModal] = useState(false);
+	const [showUploadChapterModal, setShowUploadChapterModal] = useState(false);
 
 	const sliderRef = useRef(null);
 	const castSliderRef = useRef(null);
@@ -55,11 +56,11 @@ const WatchPage = () => {
 	}, []);
 	
 	// For upload manga modal
-	const uploadMangaModalRef = useRef();
+	const uploadChapterModalRef = useRef();
 	useEffect(() => {
 		const handleClickOutsideDesktop = (e) => {
-			if (uploadMangaModalRef.current && uploadMangaModalRef.current.contains(e.target)) {
-				setShowUploadMangaModal(false);
+			if (uploadChapterModalRef.current && uploadChapterModalRef.current.contains(e.target)) {
+				setShowUploadChapterModal(false);
 			}
 		};
 
@@ -152,14 +153,18 @@ const WatchPage = () => {
 	};
 
 	useEffect(() => {
+		const title = content?.title || content?.name;
 		const getManga = async () => {
-			if (!content?.name?.trim()) {
+			if (!title.trim()) {
 				SetMangaData({ manga: [] });
 				return;
 			}
 			try {
-				const res = await axios.get(`/api/v2/manga/search?query=${content.name}`);
-				SetMangaData(res.data);
+				const res = await axios.get(`/api/v2/manga/search?query=${title}`);
+				SetMangaData({
+					dbResults: res.data.dbResults || [],
+					apiResults: res.data.apiResults || [],
+				});
 			} catch (error) {
 				console.error("Error fetching search results", error);
 			}
@@ -168,8 +173,32 @@ const WatchPage = () => {
 		getManga();
 	}, [content]);
 
-	const { allChapters, isLoading: isLoadingChapterList, error: ChapterListError } = useChapterList(mangaData?.manga?.[0]?.id);
+	const apiMangaId = mangaData?.apiResults?.[0]?.id;
+	const dbMangaId = mangaData?.dbResults?.[0]?.manga_id;
+	const { allChapters, isLoading: isLoadingChapterList, error: ChapterListError } = useChapterList(apiMangaId);
+	const { allChaptersDB, isLoading: isLoadingChapterListDB, error: ChapterListDBError } = useChapterListDB(dbMangaId);
 	if (ChapterListError) return <div>Error: {ChapterListError}</div>;
+	if (ChapterListDBError) return <div>Error: {ChapterListDBError}</div>;
+
+	const combinedChapters = useMemo(() => {
+		const chaptersFromAPI = Array.isArray(allChapters)
+			? allChapters.map(chap => ({ ...chap, source: 'api' }))
+			: [];
+
+		const chaptersFromDB = Array.isArray(allChaptersDB)
+			? allChaptersDB.map(chap => ({ ...chap, source: 'db' }))
+			: [];
+
+		const combined = [...chaptersFromDB, ...chaptersFromAPI];
+
+		combined.sort((a, b) => {
+			const chapA = parseFloat(a.chapter || 0);
+			const chapB = parseFloat(b.chapter || 0);
+			return chapB - chapA;
+		});
+
+		return combined;
+	}, [allChapters, allChaptersDB]);
 
 	const handleAddToFavourites = async () => {
 		try {
@@ -191,6 +220,26 @@ const WatchPage = () => {
 			}
 		}
 	};
+
+const handleUploadChapterClick = async () => {
+    const mangaTitle = content.title || content.name;
+    if (!mangaTitle) {
+        alert("No manga title found.");
+        return;
+    }
+    try {
+        const res = await axios.get(`/api/v2/manga/search?query=${encodeURIComponent(mangaTitle)}&source=db`);
+        const dbResults = res.data?.dbResults || [];
+        const found = dbResults.some(manga => manga.title.toLowerCase() === mangaTitle.toLowerCase());
+        if (!found) {
+            alert("This manga is not in the database. Please upload the manga first.");
+            return;
+        }
+        setShowUploadChapterModal(true);
+    } catch (err) {
+        alert("Error checking manga in database.");
+    }
+};
 
 	if (loading)
 		return (
@@ -214,8 +263,8 @@ const WatchPage = () => {
 
 	return (
 		<div className='transition-all duration-200'>
-			{showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={allChapters} />}
-			{showUploadMangaModal && <UploadMangaModal uploadMangaModalRef={uploadMangaModalRef} onClose={() => setShowUploadMangaModal(false)}/>}
+			{showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={combinedChapters} />}
+			{showUploadChapterModal && <UploadChapterModal uploadChapterModalRef={uploadChapterModalRef} onClose={() => setShowUploadChapterModal(false)} title={content.title || content.name}/>}
 			<div
 				className="bg-gradient-to-b from-black to-gray-900 min-h-screen text-white"
 				style={{
@@ -299,7 +348,7 @@ const WatchPage = () => {
 										<CirclePlus size={28} fill={isFavourite ? 'white' : 'none'} />
 									</button>
 									{/* Manga button */}
-									{mangaData && (
+									{combinedChapters && (
 										<button className="p-2 rounded-full transition hover:bg-gray-800/50"
 											onClick={() => setShowReadModal(true)}><LibraryBig size={28} />
 										</button>
@@ -432,7 +481,7 @@ const WatchPage = () => {
 					</div>
 
 					{/* Manga button */}
-					{mangaData.manga && (
+					{combinedChapters && (
 						<button className="bg-blue-500 hover:bg-blue-600
 						p-4
 						text-lg
@@ -456,7 +505,9 @@ const WatchPage = () => {
 						transition-all duration-200
 						mx-auto 2xl:ml-6
 						"
-						onClick={() => setShowUploadMangaModal(true)}>Upload<GrUpload className="text-xl inline ml-2"/>
+						onClick={handleUploadChapterClick}
+						>
+							Upload<GrUpload className="text-xl inline ml-2"/>
 					</button>
 
 					{/* Cast Information */}

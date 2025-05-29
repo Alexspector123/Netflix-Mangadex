@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const apiUrl = "/api/v2/chapter";
 
-function useFetchChapterReader(id) {
+function useFetchChapterReader(id, source = 'api') {
   const [chapterReaderData, setChapterReaderData] = useState([]);
   const [isLoading, setIsLoading]   = useState(false);
   const [error, setError]       = useState(null);
@@ -11,7 +11,7 @@ function useFetchChapterReader(id) {
     const fetchChapterReader = async () => {
         try {
             setIsLoading(true);
-            const chaptersRes = await axios.get(`${apiUrl}/reader/${id}`);
+            const chaptersRes = await axios.get(`${apiUrl}/reader/${id}?source=${source}`);
             setChapterReaderData(chaptersRes.data);
         } catch (error) {
             setError(error.message);
@@ -22,7 +22,7 @@ function useFetchChapterReader(id) {
     if(id){
         fetchChapterReader();
     }
-  }, [id]);
+  }, [id, source]);
 
   return { chapterReaderData, isLoading, error };
 };

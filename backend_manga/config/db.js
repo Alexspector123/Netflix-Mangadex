@@ -37,13 +37,15 @@ export const initializeTables = async () => {
             );
         `);
         await db.query(`
-            CREATE TABLE IF NOT EXISTS Chapters (
+            CREATE TABLE IF NOT EXISTS Chapter (
                 chapter_id INT PRIMARY KEY AUTO_INCREMENT,
                 manga_id INT NOT NULL,
+                uploader_id INT NOT NULL,
                 chapter_number VARCHAR(20),
                 title VARCHAR(255),
                 upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (manga_id) REFERENCES Manga(manga_id) ON DELETE CASCADE
+                FOREIGN KEY (manga_id) REFERENCES Manga(manga_id) ON DELETE CASCADE,
+                FOREIGN KEY (uploader_id) REFERENCES Users(userId) ON DELETE CASCADE
             );
         `);
         await db.query(`

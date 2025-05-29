@@ -25,7 +25,6 @@ export function useBatchChapters(ids, source = 'api') {
     
             for (const batch of batches) {
               const res = await axios.post(`${apiUrl}/batch?source=${source}`, { ids: batch });
-              console.log('Response from batch:', res.data);
               results.push(...res.data);
             }
     

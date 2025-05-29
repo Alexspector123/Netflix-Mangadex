@@ -10,15 +10,16 @@ const storage = new CloudinaryStorage({
     const mangaTitle = req.body.manga_title;
     const chapterNumber = req.body.chapter_number;
     const chapterTitle = req.body.chapter_title;
-
-    let url = `manga/${mangaTitle}/chapter_${chapterNumber}`;
+    const userId = req.user?.userId;
 
     if (!mangaTitle || !chapterNumber) {
+      console.log(chapterTitle);
       throw new Error("manga_title và chapter_number là bắt buộc");
     }
 
+    let url = `manga/${mangaTitle}/chapter_${chapterNumber}/${userId}`;
     if(chapterTitle === 'Oneshot') {
-        url = `manga/${mangaTitle}/${chapterTitle}`;
+        url = `manga/${mangaTitle}/Oneshot/${userId}`;
     }
 
     // Tìm manga_id từ title
@@ -27,7 +28,6 @@ const storage = new CloudinaryStorage({
       throw new Error("Không tìm thấy manga với title đã cung cấp");
     }
 
-    // Gán manga_id vào req.body cho route sử dụng
     req.body.manga_id = rows[0].manga_id;
 
     return {

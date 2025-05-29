@@ -4,16 +4,16 @@ import axios from 'axios'
 
 const apiUrl = "/api/v2/chapter";
 
-const useFetchChapterbyID = (id) => {
+const useFetchChapterbyID = (id, source = 'api') => {
     const [chapterData, setChapterData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    console.log(`${apiUrl}/${id}?source=${source}`);
     useEffect(() => {
         const fetchChapterByID = async () => {
             try {
                 setIsLoading(true);
-                const res = await axios.get(`${apiUrl}/${id}`);
+                const res = await axios.get(`${apiUrl}/${id}?source=${source}`);
                 setChapterData(res.data);
             } catch (error) {
                 setError(error.message);

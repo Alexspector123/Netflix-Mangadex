@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { RiCloseLine } from "react-icons/ri";
 import { FaFileAlt, FaUserFriends } from "react-icons/fa";
@@ -14,18 +14,20 @@ import { useUIStore } from "../store/uiStore";
 
 const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const source = searchParams.get('source') || 'api';
 
   const { darkMode } = useUIStore();
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const handleChapterSelect = (chapter) => {
-    navigate(`/chapter/${chapter.id}/1`);
+    navigate(`/chapter/${chapter.id}/1?source=${source}`);
     setDropdownOpen(false);
   };
 
-  const { chapterData, isLoading: isChapterLoading, error: isChapterError } = useFetchChapterbyID(id);
+  const { chapterData, isLoading: isChapterLoading, error: isChapterError } = useFetchChapterbyID(id, source);
   const mangaID = chapterData?.mangaID;
   const { allChapters, isLoading, error: isVolumeLoading } = useChapterList(mangaID);
 
@@ -81,7 +83,7 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
         navigate(`/titles/${chapterData.mangaID}`);
       }
       else {
-        navigate(`/chapter/${nextChapter.id}/1`);
+        navigate(`/chapter/${nextChapter.id}/1?source=${source}`);
       }
     }
 
@@ -90,11 +92,9 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
         navigate(`/titles/${chapterData.mangaID}`);
       }
       else {
-        navigate(`/chapter/${prevChapter.id}/1`);
+        navigate(`/chapter/${prevChapter.id}/1?source=${source}`);
       }
     }
-
-  console.log('Grouped Chapter:', groupedChapter);
 
   return (
     <>

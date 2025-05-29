@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 import useFetchChapterReader from '../hooks/manga/useFetchChapterReader';
 import useFetchChapterbyID from '../hooks/manga/useFetchChapterbyID';
@@ -13,14 +13,18 @@ import { FaAlignRight } from "react-icons/fa";
 
 
 const ChapPage = () => {
+
   const { id, page } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const source = searchParams.get('source') || 'api';
   const navigate = useNavigate();
   const currentPage = parseInt(page) || 1;
 
   const { showSidebar = () => {}, showHeader = true } = useOutletContext() || {};
 
-  const { chapterReaderData, isLoading, error } = useFetchChapterReader(id);
-  const { chapterData, isLoading: isChapterLoading, error: isChapterError } = useFetchChapterbyID(id);
+  const { chapterReaderData, isLoading, error } = useFetchChapterReader(id, source);
+  const { chapterData, isLoading: isChapterLoading, error: isChapterError } = useFetchChapterbyID(id, source);
 
   const mangaID = chapterData?.mangaID;
   const { allChapters, isLoading: isAllChaptersLoading, error: isVolumeLoading } = useChapterList(mangaID);
@@ -72,22 +76,22 @@ const ChapPage = () => {
 
   const nextPage = () => {
     if (currentPage < chapterReaderData.length)
-      navigate(`/chapter/${id}/${currentPage + 1}`, { replace: true });
+      navigate(`/chapter/${id}/${currentPage + 1}?source=${source}`, { replace: true });
     else if(nextChapter === null){
         navigate(`/titles/${chapterData.mangaID}`);
       } else {
-        navigate(`/chapter/${nextChapter.id}/1`, { replace: true });
+        navigate(`/chapter/${nextChapter.id}/1?source=${source}`, { replace: true });
       }
   };
 
   const prevPage = () => {
     if (currentPage > 1)
-      navigate(`/chapter/${id}/${currentPage - 1}`, { replace: true });
+      navigate(`/chapter/${id}/${currentPage - 1}?source=${source}`, { replace: true });
     else
       if(prevChapter === null){
         navigate(`/titles/${chapterData.mangaID}`);
       } else {
-        navigate(`/chapter/${prevChapter.id}/1`, { replace: true });
+        navigate(`/chapter/${prevChapter.id}/1?source=${source}`, { replace: true });
       }
   };
 

@@ -63,7 +63,7 @@ function App() {
 				<Route path='/*' element={<NotFoundPage />} />
 				<Route path='/register-vip' element={user ? <VipPage /> : <Navigate to={"/auth"} />} />
 				<Route path="/chapter" element={<ChapLayout />}>
-					<Route path=":id/:page" element={<ChapPage />}/>
+					<Route path=":id/:page" element={<ChapPage />} />
 				</Route>
 			</Routes>
 			<Footer />
