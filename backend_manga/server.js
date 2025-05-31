@@ -7,6 +7,7 @@ import axios from 'axios';
 
 import mangaRoutes from './routes/manga.route.js';
 import chapterRoutes from './routes/chapter.route.js';
+import pageRoutes from './routes/page.route.js'
 
 import { ENV_VARS } from "../backend_movie/config/envVars.js";
 
@@ -48,6 +49,7 @@ setInterval(() => {
 
 app.use("/api/v2/manga", mangaRoutes);
 app.use("/api/v2/chapter", chapterRoutes);
+app.use("/api/v2/page", pageRoutes);
 
 const proxyLimiter = rateLimit({
   windowMs: 1000,

@@ -54,7 +54,7 @@ const WatchPage = () => {
 			document.removeEventListener("mousedown", handleClickOutsideDesktop);
 		};
 	}, []);
-	
+
 	// For upload manga modal
 	const uploadChapterModalRef = useRef();
 	useEffect(() => {
@@ -153,7 +153,7 @@ const WatchPage = () => {
 	};
 
 	useEffect(() => {
-		const title = content?.title || content?.name;
+		const title = content?.title || content?.name || "";
 		const getManga = async () => {
 			if (!title.trim()) {
 				SetMangaData({ manga: [] });
@@ -161,6 +161,7 @@ const WatchPage = () => {
 			}
 			try {
 				const res = await axios.get(`/api/v2/manga/search?query=${title}`);
+				console.log("res.data ", res.data);
 				SetMangaData({
 					dbResults: res.data.dbResults || [],
 					apiResults: res.data.apiResults || [],
@@ -221,25 +222,25 @@ const WatchPage = () => {
 		}
 	};
 
-const handleUploadChapterClick = async () => {
-    const mangaTitle = content.title || content.name;
-    if (!mangaTitle) {
-        alert("No manga title found.");
-        return;
-    }
-    try {
-        const res = await axios.get(`/api/v2/manga/search?query=${encodeURIComponent(mangaTitle)}&source=db`);
-        const dbResults = res.data?.dbResults || [];
-        const found = dbResults.some(manga => manga.title.toLowerCase() === mangaTitle.toLowerCase());
-        if (!found) {
-            alert("This manga is not in the database. Please upload the manga first.");
-            return;
-        }
-        setShowUploadChapterModal(true);
-    } catch (err) {
-        alert("Error checking manga in database.");
-    }
-};
+	const handleUploadChapterClick = async () => {
+		const mangaTitle = content.title || content.name;
+		if (!mangaTitle) {
+			alert("No manga title found.");
+			return;
+		}
+		try {
+			const res = await axios.get(`/api/v2/manga/search?query=${encodeURIComponent(mangaTitle)}&source=db`);
+			const dbResults = res.data?.dbResults || [];
+			const found = dbResults.some(manga => manga.title.toLowerCase() === mangaTitle.toLowerCase());
+			if (!found) {
+				alert("This manga is not in the database. Please upload the manga first.");
+				return;
+			}
+			setShowUploadChapterModal(true);
+		} catch (err) {
+			alert("Error checking manga in database.");
+		}
+	};
 
 	if (loading)
 		return (
@@ -264,7 +265,7 @@ const handleUploadChapterClick = async () => {
 	return (
 		<div className='transition-all duration-200'>
 			{showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={combinedChapters} />}
-			{showUploadChapterModal && <UploadChapterModal uploadChapterModalRef={uploadChapterModalRef} onClose={() => setShowUploadChapterModal(false)} title={content.title || content.name}/>}
+			{showUploadChapterModal && <UploadChapterModal uploadChapterModalRef={uploadChapterModalRef} onClose={() => setShowUploadChapterModal(false)} title={content.title || content.name} />}
 			<div
 				className="bg-gradient-to-b from-black to-gray-900 min-h-screen text-white"
 				style={{
@@ -491,7 +492,7 @@ const handleUploadChapterClick = async () => {
 						transition-all duration-200
 						mx-auto 2xl:ml-45
 						"
-						onClick={() => setShowReadModal(true)}>Read Manga<BiNavigation className="text-xl inline ml-2"/>
+							onClick={() => setShowReadModal(true)}>Read Manga<BiNavigation className="text-xl inline ml-2" />
 						</button>
 					)}
 
@@ -506,8 +507,8 @@ const handleUploadChapterClick = async () => {
 						mx-auto 2xl:ml-6
 						"
 						onClick={handleUploadChapterClick}
-						>
-							Upload<GrUpload className="text-xl inline ml-2"/>
+					>
+						Upload<GrUpload className="text-xl inline ml-2" />
 					</button>
 
 					{/* Cast Information */}

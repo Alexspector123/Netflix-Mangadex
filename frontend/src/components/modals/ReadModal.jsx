@@ -2,12 +2,11 @@ import React, { useMemo } from 'react'
 
 import { IoClose } from "react-icons/io5";
 
-import ChapterItem from './ChapterItem';
+import ChapterItem from '../ChapterItem';
 
 import { useNavigate } from 'react-router-dom';
 
 const ReadModal = ({ readModalRef, onClose, allChapters }) => {
-    console.log("read modal: ", allChapters);
     const navigate = useNavigate();
     const firstChapList = useMemo(() => {
         const list = allChapters.filter(
@@ -18,6 +17,7 @@ const ReadModal = ({ readModalRef, onClose, allChapters }) => {
         }
         return null;
     }, [allChapters]);
+    console.log(allChapters);
     /*const firstChapList = useMemo(() => {
         if (!Array.isArray(allChapters)) return [];
 

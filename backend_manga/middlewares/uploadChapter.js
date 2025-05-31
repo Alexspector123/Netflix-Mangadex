@@ -7,19 +7,18 @@ import { db } from "../config/db.js";
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    const mangaTitle = req.body.manga_title;
-    const chapterNumber = req.body.chapter_number;
-    const chapterTitle = req.body.chapter_title;
+    const mangaTitle = req.body.manga_title || req.query.manga_title || "";
+    const chapterNumber = req.body.chapter_number || req.query.chapter_number || "";
+    const chapterTitle = req.body.chapter_title || req.query.chapter_title;
     const userId = req.user?.userId;
 
     if (!mangaTitle || !chapterNumber) {
-      console.log(chapterTitle);
       throw new Error("manga_title và chapter_number là bắt buộc");
     }
 
     let url = `manga/${mangaTitle}/chapter_${chapterNumber}/${userId}`;
-    if(chapterTitle === 'Oneshot') {
-        url = `manga/${mangaTitle}/Oneshot/${userId}`;
+    if (chapterTitle === 'Oneshot') {
+      url = `manga/${mangaTitle}/Oneshot/${userId}`;
     }
 
     // Tìm manga_id từ title

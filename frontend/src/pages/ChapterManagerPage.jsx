@@ -1,55 +1,73 @@
-import React from "react";
-
-const mangaList = [
-  {
-    id: "1",
-    title: "One Piece",
-    cover: "https://upload.wikimedia.org/wikipedia/en/2/2c/OnePiece62Cover.png",
-    chapterCount: 1090,
-    lastUpdated: "2025-05-20",
-  },
-  {
-    id: "2",
-    title: "Attack on Titan",
-    cover: "https://upload.wikimedia.org/wikipedia/en/8/8b/Attack_on_Titan_cover.jpg",
-    chapterCount: 139,
-    lastUpdated: "2025-04-01",
-  },
-];
+import React, { useState, useRef, useEffect } from "react";
+import useLatestChapList from "../hooks/manga/useLatestChapList.jsx";
+import UploadChapterModal from "../components/modals/UploadChapterModal.jsx";
+import { useNavigate } from "react-router-dom";
 
 const ChapterManagerPage = () => {
-  return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Chapter Manager</h1>
+  const { mangaList, isLoading, error } = useLatestChapList();
+    const [showUploadChapterModal, setShowUploadChapterModal] = useState(false);
+  console.log(mangaList);
+  const navigate = useNavigate();
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    // For upload manga modal
+    const uploadChapterModalRef = useRef();
+    useEffect(() => {
+      const handleClickOutsideDesktop = (e) => {
+        if (uploadChapterModalRef.current && uploadChapterModalRef.current.contains(e.target)) {
+          setShowUploadChapterModal(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutsideDesktop);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutsideDesktop);
+      };
+    }, []);
+
+  if (isLoading) return <p className="text-white text-center mt-20">Loading...</p>;
+  if (error) return <p className="text-red-500 text-center mt-20">{error}</p>;
+
+  return (
+    <div className="min-h-screen bg-[#141414] p-8">
+      			{showUploadChapterModal && <UploadChapterModal uploadChapterModalRef={uploadChapterModalRef} onClose={() => setShowUploadChapterModal(false)} title={mangaList.title} />}
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-extrabold mb-10 text-red-600 drop-shadow-lg">
+          Chapter Manager
+        </h1>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {mangaList.map((manga) => (
             <div
               key={manga.id}
-              className="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col"
+              className="bg-[#222] rounded-lg shadow-lg hover:shadow-red-700 transition-shadow duration-300 flex flex-col"
             >
               <img
                 src={manga.cover}
                 alt={manga.title}
-                className="w-full h-48 object-cover rounded mb-4"
+                className="w-full h-56 object-cover rounded-t-lg"
               />
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                {manga.title}
-              </h2>
-              <p className="text-sm text-gray-600 mb-1">
-                Chapters: <span className="font-medium">{manga.chapterCount}</span>
-              </p>
-              <p className="text-sm text-gray-600 mb-4">
-                Last Updated: {manga.lastUpdated}
-              </p>
-              <div className="mt-auto flex gap-2">
-                <button className="flex-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                  Add Chapter
-                </button>
-                <button className="flex-1 px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm">
-                  Edit
-                </button>
+              <div className="p-4 flex flex-col flex-grow">
+                <h2 className="text-xl font-bold text-white mb-2 truncate">{manga.title}</h2>
+                <p className="text-sm text-gray-300 mb-1">
+                  Latest chapters: <span className="font-semibold text-red-500">{manga.latestChapNo}</span>
+                </p>
+                <p className="text-sm text-gray-400 mb-4">
+                  Last Updated: <span>{manga.lastUpdated.slice(0, 10)}</span>
+                </p>
+                <div className="mt-auto flex gap-3">
+                  <button
+                    onClick={() => setShowUploadChapterModal(true)}
+                    className="flex-1 px-4 py-2 bg-red-600 rounded hover:bg-red-700 text-white font-semibold text-sm transition"
+                  >
+                    Add Chapter
+                  </button>
+                  <button
+                    onClick={() => navigate(`/manage/${manga.id}/${manga.chapter_id}`)}
+                    className="flex-1 px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 text-gray-300 font-semibold text-sm transition"
+                  >
+                    Edit
+                  </button>
+                </div>
               </div>
             </div>
           ))}

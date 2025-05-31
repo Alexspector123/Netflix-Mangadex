@@ -308,6 +308,8 @@ export async function addToFavourites(req, res) {
   }
 }
 
+
+
 export const clearFavouriteHistory = async (req, res) => {
   try {
     const sql = `

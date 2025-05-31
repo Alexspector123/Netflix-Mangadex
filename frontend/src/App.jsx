@@ -62,8 +62,6 @@ function App() {
 		<>
 			<Routes>
 				<Route path='/' element={<HomePage />} />
-				<Route path='/login' element={!user ? <LoginPage /> : <Navigate to={"/"} />} />
-				<Route path='/signup' element={!user ? <SignUpPage /> : <Navigate to={"/"} />} />
 				<Route path='/auth' element={!user ? <AuthPage /> : <Navigate to = {"/"} />} />
 				<Route path='/watch/:id' element={user ? <WatchPage /> : <Navigate to={"/auth"} />} />
 				<Route path='/search' element={user ? <SearchPage /> : <Navigate to={"/auth"} />} />
@@ -80,8 +78,8 @@ function App() {
 				</Route>
 				<Route path="/manage" element={<ChapManageLayout />}>
 					<Route index element={<ChapterManagerPage />} /> 
+					<Route path=":id/:idc" element={<ChapterEditPage />}/>
 				</Route>
-				<Route path="/test" element={<ChapterEditPage />} />
 			</Routes>
 
 			{isFooterVisible && <Footer />}
