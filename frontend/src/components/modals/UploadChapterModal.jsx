@@ -67,12 +67,12 @@ const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
-      alert(`✅ Upload thành công ${res.data.pages_uploaded} trang!`);
+      alert(`✅ Upload success ${res.data.pages_uploaded} page!`);
       onClose();
       handleReset();
     } catch (err) {
       console.error(err);
-      alert("❌ Upload thất bại");
+      alert("❌ Upload fail");
     } finally {
       setIsLoading(false);
     }

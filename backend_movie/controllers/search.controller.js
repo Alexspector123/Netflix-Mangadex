@@ -258,42 +258,57 @@ export async function addToFavourites(req, res) {
   }
 
   try {
-    const query = `
-      SELECT favourites FROM Users WHERE userId = ?;
-    `;
-    const [rows] = await db.query(query, [req.user.userId]);
-    const favourites = JSON.parse(rows[0].favourites || '[]');
+    const [rows] = await db.query(
+      `SELECT favourites FROM Users WHERE userId = ?`,
+      [req.user.userId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const rawFavourites = rows[0].favourites;
+    let favourites = [];
+
+    if (rawFavourites && typeof rawFavourites === 'string' && rawFavourites.trim() !== '') {
+      try {
+        favourites = JSON.parse(rawFavourites);
+      } catch (err) {
+        console.error("JSON parse error:", err.message);
+        favourites = [];
+      }
+    }
 
     const exists = favourites.some((item) => item.id === id);
     if (exists) {
       return res.status(200).json({ success: true, message: "Already in favourites" });
     }
 
+    const newItem = {
+      id,
+      image,
+      title,
+      searchType: type,
+      createdAt: new Date(),
+    };
+
     const updateQuery = `
       UPDATE Users
-      SET favourites = JSON_ARRAY_APPEND(
-        favourites, '$', CAST(? AS JSON)
-      )
+      SET favourites = JSON_ARRAY_APPEND(favourites, '$', CAST(? AS JSON))
       WHERE userId = ?;
     `;
-    const values = [
-      JSON.stringify({
-        id: id,
-        image: image,
-        title: title,
-        searchType: type,
-        createdAt: new Date()
-      }),
-      req.user.userId
-    ];
+
+    const values = [JSON.stringify(newItem), req.user.userId];
 
     await db.query(updateQuery, values);
     res.status(200).json({ success: true, message: "Added to favourites" });
   } catch (error) {
-    console.log("Error in addToFavourites controller: ", error.message);
+    console.error("Error in addToFavourites controller:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
+
+
 
 export const clearFavouriteHistory = async (req, res) => {
   try {

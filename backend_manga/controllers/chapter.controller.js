@@ -124,6 +124,7 @@ const fetchChapterByIDFromDB = async (id) => {
     id: chapter.chapter_id,
     chapterNo: chapter.chapter_number,
     title: chapter.chapter_title,
+    upload_date: chapter.upload_date,
     releaseTime: toRelativeTime(chapter.upload_date),
     translatedLanguage: chapter.translated_language,
     uploaderName: chapter.uploader_name,
@@ -303,7 +304,7 @@ export const fetchChaptersBatch = async (req, res) => {
 
 const fetchChapterReaderFromDB = async (chapterId) => {
   const [pages] = await db.execute(
-    `SELECT page_number, image_url FROM Page WHERE chapter_id = ? ORDER BY page_number ASC`,
+    `SELECT page_id, page_number, image_url FROM Page WHERE chapter_id = ? ORDER BY page_number ASC`,
     [chapterId]
   );
 
@@ -415,5 +416,68 @@ export const addChapter = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi upload chapter", error: error.message });
   }
 }
+
+export const getLatestChapInfo = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const [rows] = await db.query(
+      `SELECT
+          c.manga_id AS id,
+          m.title,
+          m.cover_url AS cover,
+          c.chapter_number AS latestChapNo,
+          c.chapter_id,
+          c.upload_date AS lastUpdated
+        FROM Chapter c
+        INNER JOIN Manga m ON c.manga_id = m.manga_id
+        WHERE c.uploader_id = 1
+          AND c.upload_date = (
+            SELECT MAX(upload_date)
+            FROM Chapter
+            WHERE uploader_id = c.uploader_id AND manga_id = c.manga_id
+          )
+        ORDER BY c.upload_date DESC`,
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: "No chapters found for this user" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching latest chapter:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching latest chapter",
+    });
+  }
+};
+
+export const deleteChapter = async (req, res) => {
+    const { id } = req.params;
+
+  try {
+    await db.execute(`DELETE FROM Page WHERE chapter_id = ?`, [id]);
+
+    const [result] = await db.execute(`DELETE FROM Chapter WHERE chapter_id = ?`, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Chapter is no existed" });
+    }
+
+    res.json({ message: "Delete chapter success" });
+  } catch (error) {
+    console.error("Eror when delete chapter:", error);
+    res.status(500).json({ error: "Delete chapter failed" });
+  }
+};
 
 export default fetchChapterList;

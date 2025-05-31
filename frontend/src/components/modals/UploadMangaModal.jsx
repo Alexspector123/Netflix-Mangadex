@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const UploadMangaModal = ({ uploadMangaModalRef, onClose }) => {
-
+    const { id } = useParams();
     const countries = [
         'United States',
         'United Kingdom',
@@ -22,7 +23,8 @@ const UploadMangaModal = ({ uploadMangaModalRef, onClose }) => {
         artistName: '',
         country: '',
         status: '',
-        yearCreated: ''
+        yearCreated: '',
+        moviepage_id: id,
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -71,6 +73,7 @@ const UploadMangaModal = ({ uploadMangaModalRef, onClose }) => {
         data.append("country", formData.country);
         data.append("status", formData.status);
         data.append("yearCreated", formData.yearCreated);
+        data.append("moviepage_id", formData.moviepage_id);
         if (image) data.append("image", image);
 
         setIsLoading(true);

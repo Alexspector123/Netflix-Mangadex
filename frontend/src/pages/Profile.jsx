@@ -73,7 +73,6 @@ export default function Profile() {
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      // Lấy các trường từ profileData
       const { name, email, language } = profileData;
 
       const response = await axios.put(
@@ -83,17 +82,16 @@ export default function Profile() {
       );
   
       if (response.data.success) {
-        setProfileData(response.data.user);  // Cập nhật dữ liệu mới từ server
-        setIsEditing(false);  // Đóng chế độ chỉnh sửa
+        setProfileData(response.data.user);
+        setIsEditing(false);
       }
     } catch (err) {
-      console.error("Lỗi khi lưu profile:", err);
+      console.error("Error when saving profile:", err);
     } finally {
       setIsLoading(false);
     }
   };
   
-
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;

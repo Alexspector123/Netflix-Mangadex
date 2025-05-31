@@ -67,7 +67,7 @@ export const fetchVolumeListByID = async (req, res) => {
     );
 
     const volumesObj = VolumeRes.data.volumes;
-    
+
     const VolumeListData = Object.entries(volumesObj).map(([volumeNumber, volumeData]) => {
       const chapters = Object.entries(volumeData.chapters).map(
         ([chapterNumber, chapterData]) => ({
@@ -112,10 +112,6 @@ export const fetchChaptersByMangaIDFromDB = async (req, res) => {
       [mangaId]
     );
 
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'No chapters found for this manga' });
-    }
-
     const chapters = rows.map(row => ({
       id: row.chapter_id,
       chapterNo: row.chapter_number,
@@ -131,38 +127,60 @@ export const fetchChaptersByMangaIDFromDB = async (req, res) => {
 };
 
 export const addManga = async (req, res) => {
-    try {
-        const { title, description, status, country } = req.body;
+  try {
+    const { title, status, country, moviepage_id  } = req.body;
 
-        if (!title) {
-            return res.status(400).json({ message: "Thiếu tiêu đề manga" });
-        }
-
-        const [existing] = await db.execute("SELECT * FROM Manga WHERE title = ?", [title]);
-        if (existing.length > 0) {
-            return res.status(409).json({ message: "Manga is existed" });
-        }
-
-        const [rows] = await db.execute("SELECT manga_id FROM Manga WHERE title = ?", [title]);
-        if (rows.length > 0) {
-          return res.status(409).json({ message: "Manga is existed in database" });
-        }
-
-        // Handle image upload
-        const imageUrl = req.file ? req.file.path : null;
-
-        // Insert new manga
-        const [result] = await db.execute(
-            "INSERT INTO Manga (title, cover_url, status, country) VALUES (?, ?, ?, ?)",
-            [title, imageUrl, status || "ongoing", country]
-        );
-
-        res.status(201).json({
-            manga_id: result.insertId,
-            cover_url: imageUrl,
-        });
-    } catch (err) {
-        console.error("Upload error:", err);
-        res.status(500).json({ message: "Upload failed!", error: err.message });
+    if (!title) {
+      return res.status(400).json({ message: "Thiếu tiêu đề manga" });
     }
+
+    const [existing] = await db.execute("SELECT * FROM Manga WHERE title = ?", [title]);
+    if (existing.length > 0) {
+      return res.status(409).json({ message: "Manga is existed" });
+    }
+
+    const [rows] = await db.execute("SELECT manga_id FROM Manga WHERE title = ?", [title]);
+    if (rows.length > 0) {
+      return res.status(409).json({ message: "Manga is existed in database" });
+    }
+
+    // Handle image upload
+    const imageUrl = req.file ? req.file.path : null;
+
+    // Insert new manga
+    const [result] = await db.execute(
+      "INSERT INTO Manga (title, cover_url, status, country, moviepage_id) VALUES (?, ?, ?, ?)",
+      [title, imageUrl, status || "ongoing", country, moviepage_id]
+    );
+
+    res.status(201).json({
+      manga_id: result.insertId,
+      cover_url: imageUrl,
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed!", error: err.message });
+  }
 };
+
+export const getMangaInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: 'Manga ID is required' });
+    }
+
+    const [rows] = await db.execute("SELECT * FROM Manga WHERE manga_id = ?", [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'No chapters found for this manga' });
+    }
+
+    const manga = rows[0];
+
+    return res.status(200).json(manga);
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed!", error: err.message });
+  }
+}
