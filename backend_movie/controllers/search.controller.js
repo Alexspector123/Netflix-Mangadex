@@ -168,6 +168,7 @@ export async function searchTv(req, res) {
 
 export async function getSearchHistory(req, res) {
   try {
+    console.log("req.user", req.user);
     res.status(200).json({ success: true, content: req.user.searchHistory });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });

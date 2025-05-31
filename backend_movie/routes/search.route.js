@@ -12,6 +12,7 @@ import {
   clearFavouriteHistory
 } from '../controllers/search.controller.js';
 import { checkVip } from '../middleware/checkVip.js';
+import { protectRoute } from '../middleware/protectRoute.js';
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.get('/tv/:query', searchTv);
 router.get('/person', searchPerson);
 router.get('/person/:query', searchPerson);
 
-router.get('/history', getSearchHistory);
+router.get('/history', protectRoute, getSearchHistory);
 router.delete('/history/:id', removeItemFromSearchHistory);
 router.delete('/history', clearSearchHistory);
 

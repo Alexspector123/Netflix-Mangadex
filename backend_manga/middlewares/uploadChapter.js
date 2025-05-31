@@ -7,10 +7,9 @@ import { db } from "../config/db.js";
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    console.log("📦 File upload params body:", req.query);
-    const mangaTitle = req.body.manga_title;
-    const chapterNumber = req.body.chapter_number;
-    const chapterTitle = req.body.chapter_title;
+    const mangaTitle = req.body.manga_title || req.query.manga_title || "";
+    const chapterNumber = req.body.chapter_number || req.query.chapter_number || "";
+    const chapterTitle = req.body.chapter_title || req.query.chapter_title;
     const userId = req.user?.userId;
 
     if (!mangaTitle || !chapterNumber) {
