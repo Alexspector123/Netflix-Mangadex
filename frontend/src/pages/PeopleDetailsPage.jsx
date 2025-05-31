@@ -137,9 +137,9 @@ const PeopleDetails = () => {
       
       {/* Back button */}
       <div className="container mx-auto px-4 pt-20">
-        <Link to="/people" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4">
+        {/* <Link to="/people" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4">
           <ArrowLeft size={16} /> Back to People
-        </Link>
+        </Link> */}
       </div>
       
       {/* Hero section */}

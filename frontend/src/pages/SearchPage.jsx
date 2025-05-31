@@ -1,4 +1,5 @@
 // src/pages/SearchPage.jsx
+
 import { useState, useEffect, useRef } from "react";
 import { useContentStore } from "../store/content";
 import Navbar from "../components/Navbar";
@@ -6,7 +7,7 @@ import { Search as SearchIcon, Filter, X } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { ORIGINAL_IMG_BASE_URL } from "../utils/constants.js";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const GENRES = {
   movie: [
@@ -136,30 +137,37 @@ export default function SearchPage() {
     }
   }, []);
 
-  const placeholderImage = "/images/movie-placeholder.png";
+  // Placeholder cho phim/TV (nếu không có poster sẽ fallback về /404_film.jpg)
+  const mediaPlaceholder = "/404_film.jpg";
+  // Placeholder cho người (nếu không có profile_path sẽ fallback về /404_avatar.jpg)
+  const personPlaceholder = "/404_avatar.jpg";
 
   return (
     <div className="bg-black min-h-screen text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-20">
+        {/* Tab chọn movie / tv / person */}
         <div className="flex justify-center gap-3 mb-8">
           {["movie", "tv", "person"].map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabClick(tab)}
-              className={`py-2 px-6 rounded-full text-lg transition-all duration-200 ${activeTab === tab
+              className={`py-2 px-6 rounded-full text-lg transition-all duration-200 ${
+                activeTab === tab
                   ? "bg-red-600 shadow-lg shadow-red-900/30"
                   : "bg-gray-800 hover:bg-gray-700"
-                }`}
+              }`}
             >
               {tab === "movie"
                 ? "Movies"
                 : tab === "tv"
-                  ? "TV Shows"
-                  : "People"}
+                ? "TV Shows"
+                : "People"}
             </button>
           ))}
         </div>
+
+        {/* Thanh tìm kiếm + nút filter */}
         <div className="max-w-3xl mx-auto mb-8">
           <div className="flex gap-2 mb-4">
             <div className="flex-1 flex bg-gray-800 rounded-lg overflow-hidden shadow-lg focus-within:ring-2 focus-within:ring-red-500">
@@ -167,12 +175,13 @@ export default function SearchPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={`Search for ${activeTab === "person"
+                placeholder={`Search for ${
+                  activeTab === "person"
                     ? "actors, directors..."
                     : activeTab === "movie"
-                      ? "movies..."
-                      : "TV shows..."
-                  }`}
+                    ? "movies..."
+                    : "TV shows..."
+                }`}
                 className="flex-1 p-3 bg-transparent text-white focus:outline-none text-lg"
               />
               <button
@@ -182,22 +191,24 @@ export default function SearchPage() {
                 <SearchIcon size={22} />
               </button>
             </div>
-            {((activeTab !== "person" && !showFilters) || (activeTab === "person" && !showFilters)) && (
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`p-3 rounded-lg transition-colors ${showFilters || selectedGenre
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-gray-800 hover:bg-gray-700"
-                  }`}
-              >
-                <Filter size={22} />
-              </button>
-            )}
+            {/* Nút filter: hiển thị với cả movie/tv và person */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`p-3 rounded-lg transition-colors ${
+                showFilters || selectedGenre
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+            >
+              <Filter size={22} />
+            </button>
           </div>
           {showFilters && (
             <div className="bg-gray-800 p-4 rounded-lg mb-4 shadow-lg animate-fadeIn">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="font-semibold text-lg">{activeTab === "person" ? "Departments" : "Genres"}</h3>
+                <h3 className="font-semibold text-lg">
+                  {activeTab === "person" ? "Departments" : "Genres"}
+                </h3>
                 {(selectedGenre || selectedDepartment) && (
                   <button
                     onClick={clearFilters}
@@ -214,10 +225,11 @@ export default function SearchPage() {
                     <button
                       key={g.id}
                       onClick={() => handleGenreSelect(g.id)}
-                      className={`px-3 py-1 rounded-full text-sm transition-all ${selectedGenre == g.id
+                      className={`px-3 py-1 rounded-full text-sm transition-all ${
+                        selectedGenre == g.id
                           ? "bg-red-600 hover:bg-red-700"
                           : "bg-gray-700 hover:bg-gray-600"
-                        }`}
+                      }`}
                     >
                       {g.name}
                     </button>
@@ -229,10 +241,11 @@ export default function SearchPage() {
                     <button
                       key={d.id}
                       onClick={() => handleDepartmentSelect(d.id)}
-                      className={`px-3 py-1 rounded-full text-sm transition-all ${selectedDepartment === d.id
+                      className={`px-3 py-1 rounded-full text-sm transition-all ${
+                        selectedDepartment === d.id
                           ? "bg-red-600 hover:bg-red-700 text-white"
                           : "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                        }`}
+                      }`}
                     >
                       {d.label}
                     </button>
@@ -242,15 +255,17 @@ export default function SearchPage() {
             </div>
           )}
         </div>
+
+        {/* Khu vực hiển thị kết quả */}
         <div className="mb-4">
           <h2 className="text-xl font-semibold mb-4">
             {results.length > 0
               ? `Found ${results.length} result${results.length === 1 ? "" : "s"}`
               : isLoading
-                ? "Searching..."
-                : searchTerm || selectedGenre || selectedDepartment
-                  ? "No results found"
-                  : "Start searching to see results"}
+              ? "Searching..."
+              : searchTerm || selectedGenre || selectedDepartment
+              ? "No results found"
+              : "Start searching to see results"}
           </h2>
           {isLoading && (
             <div className="flex justify-center my-8">
@@ -259,17 +274,34 @@ export default function SearchPage() {
           )}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
             {results.map((item) => {
-              const imgPath = item.poster_path || item.profile_path;
+              // Xác định URL ảnh tùy vào tab
+              let imgUrl;
+              if (activeTab === "person") {
+                // Nếu person không có profile_path, fallback về /404_avatar.jpg
+                imgUrl = item.profile_path
+                  ? ORIGINAL_IMG_BASE_URL + item.profile_path
+                  : personPlaceholder;
+              } else {
+                // Nếu movie/tv không có poster_path, fallback về /404_film.jpg
+                imgUrl = item.poster_path
+                  ? ORIGINAL_IMG_BASE_URL + item.poster_path
+                  : mediaPlaceholder;
+              }
+
+              // Tiêu đề (movie: title, tv: name, person: name) và năm phát hành
               const title = item.title || item.name;
               const year = item.release_date
                 ? new Date(item.release_date).getFullYear()
                 : item.first_air_date
-                  ? new Date(item.first_air_date).getFullYear()
-                  : null;
+                ? new Date(item.first_air_date).getFullYear()
+                : null;
+
+              // Link khi click: /watch/:id cho movie/tv, /people/:id cho person
               const to =
                 activeTab === "movie" || activeTab === "tv"
                   ? `/watch/${item.id}`
                   : `/people/${item.id}`;
+
               return (
                 <Link
                   key={item.id}
@@ -279,17 +311,25 @@ export default function SearchPage() {
                 >
                   <div className="aspect-[2/3] bg-gray-700 relative">
                     <img
-                      src={imgPath ? ORIGINAL_IMG_BASE_URL + imgPath : placeholderImage}
+                      src={imgUrl}
                       alt={title}
                       className="w-full h-full object-cover"
                       loading="lazy"
                       onError={(e) => {
-                        e.currentTarget.src = placeholderImage;
+                        // Nếu fetch ảnh TMDB lỗi, fallback về placeholder tương ứng
+                        if (activeTab === "person") {
+                          e.currentTarget.src = personPlaceholder;
+                        } else {
+                          e.currentTarget.src = mediaPlaceholder;
+                        }
                       }}
                     />
                     {activeTab !== "person" && item.vote_average > 0 && (
                       <div className="absolute top-2 right-2 bg-black/70 rounded-full w-10 h-10 flex items-center justify-center">
-                        <span className="text-sm font-bold" style={{ color: getRatingColor(item.vote_average) }}>
+                        <span
+                          className="text-sm font-bold"
+                          style={{ color: getRatingColor(item.vote_average) }}
+                        >
                           {item.vote_average.toFixed(1)}
                         </span>
                       </div>
@@ -309,6 +349,7 @@ export default function SearchPage() {
   );
 }
 
+// Hàm hỗ trợ tính màu cho vote_average
 function getRatingColor(rating) {
   if (rating >= 7.5) return "#4CAF50";
   if (rating >= 6) return "#FFC107";

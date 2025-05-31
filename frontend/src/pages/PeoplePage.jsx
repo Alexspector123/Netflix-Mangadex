@@ -10,7 +10,7 @@ import { ORIGINAL_IMG_BASE_URL } from "../utils/constants.js";
 export default function PeoplePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [featuredPerson, setFeaturedPerson] = useState(null);
-  const [ setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Fetch a featured person for the hero section
@@ -73,12 +73,18 @@ export default function PeoplePage() {
               <div className="w-48 md:w-64 lg:w-80 shrink-0">
                 <div className="aspect-[2/3] rounded-xl overflow-hidden shadow-2xl shadow-red-900/20 border-2 border-red-600/10">
                   <img
-                    src={featuredPerson.profile_path
-                      ? `${ORIGINAL_IMG_BASE_URL}${featuredPerson.profile_path}`
-                      : "/images/person-placeholder.png"
+                    src={
+                      featuredPerson.profile_path
+                        ? `${ORIGINAL_IMG_BASE_URL}${featuredPerson.profile_path}`
+                        : "/404_avatar.jpg"
                     }
                     alt={featuredPerson.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Nếu URL gốc lỗi, fallback về default
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/404_avatar.png";
+                    }}
                   />
                 </div>
               </div>
@@ -164,8 +170,8 @@ export default function PeoplePage() {
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={`whitespace-nowrap px-4 py-2 rounded-full flex items-center gap-2 transition-all ${selectedCategory === category.id
-                    ? 'bg-red-600 text-white'
-                    : 'bg-gray-800/60 hover:bg-gray-700/60 text-gray-300'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-800/60 hover:bg-gray-700/60 text-gray-300'
                   }`}
               >
                 {category.icon}
@@ -228,7 +234,7 @@ export default function PeoplePage() {
             <div className="bg-gray-800/60 rounded-xl overflow-hidden group">
               <div className="h-40 bg-gradient-to-r from-blue-900 to-purple-900 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity">
-                  <img src="/public/actors-banner.jpg" alt="Actors" className="w-full h-full object-cover" />
+                  <img src="/actors-banner.jpg" alt="Actors" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Film size={48} className="text-white/70" />
@@ -236,14 +242,15 @@ export default function PeoplePage() {
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-2">Actors & Actresses</h3>
-                <p className="text-gray-400 mb-4">Discover performers who bring characters to life on screen</p>
+                <p className="text-gray-400 mb-4">
+                  Discover performers who bring characters to life on screen
+                </p>
                 <Link
                   to="/search?type=person&query=actor&department=acting"
                   className="inline-block px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm transition"
                 >
                   Browse Actors
                 </Link>
-
               </div>
             </div>
 
@@ -251,7 +258,7 @@ export default function PeoplePage() {
             <div className="bg-gray-800/60 rounded-xl overflow-hidden group">
               <div className="h-40 bg-gradient-to-r from-red-900 to-amber-900 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity">
-                  <img src="/public/directors-banner.jpg" alt="Directors" className="w-full h-full object-cover" />
+                  <img src="/directors-banner.jpg" alt="Directors" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Clapperboard size={48} className="text-white/70" />
@@ -259,14 +266,15 @@ export default function PeoplePage() {
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-2">Directors</h3>
-                <p className="text-gray-400 mb-4">Explore the creative minds behind your favorite films</p>
+                <p className="text-gray-400 mb-4">
+                  Explore the creative minds behind your favorite films
+                </p>
                 <Link
                   to="/search?type=person&query=director&department=directing"
                   className="inline-block px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm transition"
                 >
                   Browse Directors
                 </Link>
-
               </div>
             </div>
 
@@ -274,10 +282,21 @@ export default function PeoplePage() {
             <div className="bg-gray-800/60 rounded-xl overflow-hidden group">
               <div className="h-40 bg-gradient-to-r from-emerald-900 to-teal-900 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity">
-                  <img src="/public/writers-banner.jpg" alt="Writers" className="w-full h-full object-cover" />
+                  <img src="/writers-banner.jpg" alt="Writers" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-white/70"
+                  >
                     <path d="M17.5 22h.5c.5 0 1-.2 1.4-.6.4-.4.6-.9.6-1.4V7.5L14.5 2H6c-.5 0-1 .2-1.4.6C4.2 3 4 3.5 4 4v3"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <path d="M10.3 15.7a2 2 0 1 0-3-2.6"></path>
@@ -288,14 +307,15 @@ export default function PeoplePage() {
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-2">Writers</h3>
-                <p className="text-gray-400 mb-4">Discover the storytellers behind the scripts and screenplays</p>
+                <p className="text-gray-400 mb-4">
+                  Discover the storytellers behind the scripts and screenplays
+                </p>
                 <Link
                   to="/search?type=person&query=writer&department=writing"
                   className="inline-block px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm transition"
                 >
                   Browse Writers
                 </Link>
-
               </div>
             </div>
           </div>

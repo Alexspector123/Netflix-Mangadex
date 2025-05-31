@@ -1,3 +1,5 @@
+// src/components/PeopleSlider.jsx
+
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -9,9 +11,12 @@ const PeopleSlider = ({ category, title, subtitle }) => {
   const [error, setError] = useState(null);
   const [showArrows, setShowArrows] = useState(false);
   const sliderRef = useRef(null);
-  
+
+  // Base URL để lấy ảnh kích thước nhỏ từ TMDB
   const SMALL_IMG_BASE_URL = "https://image.tmdb.org/t/p/w200";
-  const placeholderImage = "/pf.jpg";
+
+  // Ảnh mặc định (ảnh nằm ở public/404_avatar.png)
+  const placeholderImage = "/404_avatar.jpg";
 
   useEffect(() => {
     const fetchPeople = async () => {
@@ -29,7 +34,7 @@ const PeopleSlider = ({ category, title, subtitle }) => {
         setLoading(false);
       }
     };
-    
+
     fetchPeople();
   }, [category]);
 
@@ -39,13 +44,13 @@ const PeopleSlider = ({ category, title, subtitle }) => {
     }
   };
 
-  // Calculate if we can scroll more
+  // Giúp xác định xem có thể scroll trái/phải hay không
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const checkScrollability = () => {
     if (!sliderRef.current) return;
-    
+
     const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
     setCanScrollLeft(scrollLeft > 0);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
@@ -54,21 +59,22 @@ const PeopleSlider = ({ category, title, subtitle }) => {
   useEffect(() => {
     const slider = sliderRef.current;
     if (slider) {
-      slider.addEventListener('scroll', checkScrollability);
-      // Initial check
+      slider.addEventListener("scroll", checkScrollability);
+      // Kiểm tra ngay lần đầu
       checkScrollability();
-      
-      // Re-check when content might have changed
+
+      // Nếu dữ liệu thay đổi
       if (people.length > 0) {
         checkScrollability();
       }
-      
+
       return () => {
-        slider.removeEventListener('scroll', checkScrollability);
+        slider.removeEventListener("scroll", checkScrollability);
       };
     }
   }, [people]);
 
+  // Hiển thị placeholder loading nếu đang loading
   if (loading) {
     return (
       <div className="px-5 md:px-8">
@@ -86,6 +92,7 @@ const PeopleSlider = ({ category, title, subtitle }) => {
     );
   }
 
+  // Hiển thị lỗi nếu có
   if (error) {
     return (
       <div className="px-5 md:px-8">
@@ -93,7 +100,7 @@ const PeopleSlider = ({ category, title, subtitle }) => {
         {subtitle && <p className="text-gray-400 mb-4">{subtitle}</p>}
         <div className="bg-red-900/30 border border-red-700 p-4 rounded-lg">
           <p>{error}</p>
-          <button 
+          <button
             className="mt-2 px-4 py-1 bg-red-700 rounded hover:bg-red-600"
             onClick={() => window.location.reload()}
           >
@@ -104,6 +111,7 @@ const PeopleSlider = ({ category, title, subtitle }) => {
     );
   }
 
+  // Nếu không có người nào, không render gì
   if (people.length === 0) {
     return null;
   }
@@ -131,20 +139,30 @@ const PeopleSlider = ({ category, title, subtitle }) => {
               className="min-w-[180px] group flex-shrink-0"
             >
               <div className="rounded-lg overflow-hidden bg-gray-800 shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="h-[270px] w-[180px] bg-gray-700">
-  <img
-    src={person.profile_path ? `${SMALL_IMG_BASE_URL}${person.profile_path}` : placeholderImage}
-    alt={person.name}
-    className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-    loading="lazy"
-    onError={(e) => { e.target.src = placeholderImage }}
-  />
-</div>
+                <div className="h-[270px] w-[180px] bg-gray-700">
+                  <img
+                    src={
+                      person.profile_path
+                        ? `${SMALL_IMG_BASE_URL}${person.profile_path}`
+                        : placeholderImage
+                    }
+                    alt={person.name}
+                    className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      // Khi fetch ảnh từ TMDB lỗi, fallback về ảnh mặc định
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = placeholderImage;
+                    }}
+                  />
+                </div>
 
                 <div className="p-3">
                   <p className="font-medium text-center truncate">{person.name}</p>
                   {person.known_for_department && (
-                    <p className="text-sm text-gray-400 text-center truncate">{person.known_for_department}</p>
+                    <p className="text-sm text-gray-400 text-center truncate">
+                      {person.known_for_department}
+                    </p>
                   )}
                 </div>
               </div>
@@ -152,13 +170,15 @@ const PeopleSlider = ({ category, title, subtitle }) => {
           ))}
         </div>
 
-        {/* Navigation Arrows */}
+        {/* Các nút mũi tên để scroll */}
         {(showArrows || window.innerWidth < 768) && (
           <>
             <button
               onClick={() => scroll(-sliderRef.current.offsetWidth * 0.75)}
               className={`absolute left-0 top-1/2 -translate-y-1/2 bg-black/60 p-2 rounded-full 
-                         hover:bg-black/80 transition-opacity ${!canScrollLeft ? 'opacity-0' : 'opacity-100'}`}
+                         hover:bg-black/80 transition-opacity ${
+                           !canScrollLeft ? "opacity-0" : "opacity-100"
+                         }`}
               disabled={!canScrollLeft}
               aria-label="Scroll left"
             >
@@ -167,7 +187,9 @@ const PeopleSlider = ({ category, title, subtitle }) => {
             <button
               onClick={() => scroll(sliderRef.current.offsetWidth * 0.75)}
               className={`absolute right-0 top-1/2 -translate-y-1/2 bg-black/60 p-2 rounded-full 
-                         hover:bg-black/80 transition-opacity ${!canScrollRight ? 'opacity-0' : 'opacity-100'}`}
+                         hover:bg-black/80 transition-opacity ${
+                           !canScrollRight ? "opacity-0" : "opacity-100"
+                         }`}
               disabled={!canScrollRight}
               aria-label="Scroll right"
             >
