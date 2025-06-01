@@ -29,6 +29,9 @@ const ChapPage = () => {
   const mangaID = chapterData?.mangaID;
   const { allChapters, isLoading: isAllChaptersLoading, error: isVolumeLoading } = useChapterList(mangaID);
   
+  const chapterInfo = chapterData?.dbResult;
+  console.log("chapter data: ", chapterInfo);
+  
   if (error) return <div>Error ChapterReading: {error}</div>;
   if (isChapterError) return <div>Error ChapterReading: {isChapterError}</div>;
 
@@ -77,8 +80,8 @@ const ChapPage = () => {
   const nextPage = () => {
     if (currentPage < chapterReaderData.length)
       navigate(`/chapter/${id}/${currentPage + 1}?source=${source}`, { replace: true });
-    else if(nextChapter === null){
-        navigate(`/titles/${chapterData.mangaID}`);
+    else if(!nextChapter || nextChapter === null){
+        navigate(`/watch/${chapterInfo.moviePageID}`);
       } else {
         navigate(`/chapter/${nextChapter.id}/1?source=${source}`, { replace: true });
       }
@@ -88,8 +91,8 @@ const ChapPage = () => {
     if (currentPage > 1)
       navigate(`/chapter/${id}/${currentPage - 1}?source=${source}`, { replace: true });
     else
-      if(prevChapter === null){
-        navigate(`/titles/${chapterData.mangaID}`);
+      if(!prevChapter || nextChapter || null){
+        navigate(`/watch/${chapterInfo.moviePageID}`);
       } else {
         navigate(`/chapter/${prevChapter.id}/1?source=${source}`, { replace: true });
       }
@@ -183,7 +186,7 @@ const ChapPage = () => {
             {chapterReaderData.map((_, index) => (
               <div
                 key={index}
-                onClick={() => navigate(`/chapter/${id}/${index+1}`)}
+                onClick={() => navigate(`/chapter/${id}/${index+1}?source=${source}`)}
                 className={`h-full transition-all duration-300 cursor-pointer ${
                   index <= currentPage - 1 ? 'bg-orange-500' : 'bg-gray-200'
                 }`}

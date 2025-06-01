@@ -2,10 +2,10 @@ import axios from 'axios';
 import mangadexLimiter from '../utils/rateLimiter.js';
 import { db } from '../config/db.js';
 
-const searchMangaFromDB = async (query) => {
+const searchMangaFromDB = async (query, id) => {
   const [rows] = await db.execute(
-    "SELECT manga_id, title, cover_url, status, country FROM Manga WHERE title LIKE ? LIMIT 10",
-    [`%${query}%`]
+    "SELECT manga_id, title, cover_url, status, country, moviepage_id FROM Manga WHERE title LIKE ? AND moviepage_id = ? LIMIT 10",
+    [`%${query}%`, id]
   );
   return rows;
 }
@@ -22,7 +22,7 @@ const searchMangaFromAPI = async (query) => {
 }
 // Search Manga by Title
 export const searchManga = async (req, res) => {
-  const { query, source } = req.query;
+  const { query, source, id } = req.query;
 
   if (typeof query !== "string" || query.trim() === "") {
     return res.status(400).json({ error: "Query is required" });
@@ -31,15 +31,14 @@ export const searchManga = async (req, res) => {
   try {
     let dbResults = [];
     let apiResults = [];
-
     if (source === "db") {
-      dbResults = await searchMangaFromDB(query);
+      dbResults = await searchMangaFromDB(query, id);
     } else if (source === "api") {
       apiResults = await searchMangaFromAPI(query);
     } else {
       // Gọi song song cả hai
       [dbResults, apiResults] = await Promise.all([
-        searchMangaFromDB(query),
+        searchMangaFromDB(query, id),
         searchMangaFromAPI(query),
       ]);
     }
@@ -131,7 +130,7 @@ export const addManga = async (req, res) => {
     const { title, status, country, moviepage_id  } = req.body;
 
     if (!title) {
-      return res.status(400).json({ message: "Thiếu tiêu đề manga" });
+      return res.status(400).json({ message: "Missing manga title" });
     }
 
     const [existing] = await db.execute("SELECT * FROM Manga WHERE title = ?", [title]);
@@ -146,10 +145,9 @@ export const addManga = async (req, res) => {
 
     // Handle image upload
     const imageUrl = req.file ? req.file.path : null;
-
     // Insert new manga
     const [result] = await db.execute(
-      "INSERT INTO Manga (title, cover_url, status, country, moviepage_id) VALUES (?, ?, ?, ?)",
+      "INSERT INTO Manga (title, cover_url, status, country, moviepage_id) VALUES (?, ?, ?, ?, ?)",
       [title, imageUrl, status || "ongoing", country, moviepage_id]
     );
 

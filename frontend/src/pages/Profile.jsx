@@ -25,10 +25,10 @@ import {
 } from "lucide-react";
 
 const tabs = [
-  { key: "profile", label: "Thông tin", icon: <User size={18} /> },
-  { key: "history", label: "Lịch sử xem", icon: <Clock size={18} /> },
-  { key: "favourites", label: "Yêu thích", icon: <Heart size={18} /> },
-  { key: "subscription", label: "Gói VIP", icon: <CreditCard size={18} /> },
+  { key: "profile", label: "Profile", icon: <User size={18} /> },
+  { key: "history", label: "Watch History", icon: <Clock size={18} /> },
+  { key: "favourites", label: "Favorite", icon: <Heart size={18} /> },
+  { key: "subscription", label: "VIP Package", icon: <CreditCard size={18} /> },
 ];
 
 export default function Profile() {
@@ -108,16 +108,15 @@ export default function Profile() {
   const renderProfileContent = () => {
     if (!profileData) return null;
     const fields = [
-      { label: "Tên người dùng", value: profileData.name, name: "name", icon: <User size={18} /> },
+      { label: "Username", value: profileData.name, name: "name", icon: <User size={18} /> },
       { label: "Email", value: profileData.email, name: "email", icon: <Mail size={18} /> },
-      { label: "Ngôn ngữ", value: profileData.language, name: "language", icon: <Globe size={18} /> },
     ];
     
     return (
       <div className="space-y-8">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
           <User size={24} className="text-red-500" /> 
-          Thông tin cá nhân
+          Personal Profile
         </h2>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -489,7 +488,7 @@ export default function Profile() {
                   onClick={() => setIsEditing(true)} 
                   className="px-4 py-2 bg-gray-800/90 rounded-lg hover:bg-gray-700 transition-all duration-300 flex items-center gap-2 shadow-lg"
                 >
-                  <Edit3 size={16} /> Chỉnh sửa
+                  <Edit3 size={16} /> Edit
                 </button>
               )}
                 
@@ -497,7 +496,7 @@ export default function Profile() {
                 onClick={() => { logout(); window.location.href = "/"; }} 
                 className="px-4 py-2 bg-red-600/90 rounded-lg hover:bg-red-700 transition-all duration-300 flex items-center gap-2 shadow-lg"
               >
-                <LogOut size={16} /> Đăng xuất
+                <LogOut size={16} /> Log out
               </button>
             </div>
           </div>

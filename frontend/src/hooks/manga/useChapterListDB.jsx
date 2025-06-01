@@ -8,13 +8,16 @@ const useChapterListDB = (mangaID) => {
   const chapterById = useMemo(() => chapterIds.map(c => c.id), [chapterIds]);
   const { chapters, loading: isChapterLoading, error: chapterError } = useBatchChapters(chapterById, 'db');
 
-  if (chapterError) return <div>Error: {chapterError}</div>;
+  // Không trả về JSX, chỉ trả về dữ liệu, loading, error
+  if (chapterError) {
+    console.error("Chapter Error:", chapterError);
+  }
 
   return {
-    allChaptersDB: chapters,
+    allChaptersDB: chapters || [],
     isLoading: isVolumeLoading || isChapterLoading,
     error: volumeError || chapterError,
   };
 }
 
-export default useChapterListDB
+export default useChapterListDB;

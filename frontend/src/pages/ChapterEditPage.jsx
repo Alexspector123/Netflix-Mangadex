@@ -15,6 +15,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import toast from "react-hot-toast";
+
 import AddPageModal from "../components/modals/AddPageModal";
 import { useParams } from "react-router-dom";
 
@@ -115,26 +117,30 @@ const ChapterEditPage = () => {
   const { deleteChapterById, isDeleting, deleteError, deleteSuccess } = useDeleteChapter();
 
   const sensors = useSensors(useSensor(PointerSensor));
-  const handleAddPages = async (files) => {
-    const formData = new FormData();
+const handleAddPages = async (files) => {
+  const formData = new FormData();
 
-    files.forEach(file => {
-      formData.append("pages", file);
-    });
+  files.forEach(file => {
+    formData.append("pages", file);
+  });
 
-    formData.append("manga_title", infor.mangaTitle);
-    formData.append("chapter_number", infor.chapterNo);
-    formData.append("chapter_title", infor.chapterTitle || "");
+  formData.append("manga_title", infor.mangaTitle);
+  formData.append("chapter_number", infor.chapterNo);
+  formData.append("chapter_title", infor.chapterTitle || "");
 
-    try {
-      const result = await uploadPages(idc, formData);
-      if (result && result.data && result.data.pages) {
-        setPages(prev => [...prev, ...result.data.pages]);
-      }
-    } catch (error) {
-      console.error(error);
+  try {
+    const result = await uploadPages(idc, formData);
+    if (result && result.data && result.data.pages) {
+      setPages(prev => [...prev, ...result.data.pages]);
+
+      toast.success(`Upload Success ${result.data.pages.length} trang!`);
     }
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Upload fail!");
+  }
+};
+
 
   const handleRemovePage = async (pageId) => {
     console.log("Clicked remove page:", pageId);
@@ -162,7 +168,7 @@ const ChapterEditPage = () => {
     await deleteChapterById(idc);
 
     if (deleteSuccess) {
-      alert("Chapter is deleted!");
+      toast.error("Chapter is deleted!");
       window.location.href = `/manga/${id}`;
     }
   };

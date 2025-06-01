@@ -2,13 +2,27 @@ import React, { useRef, useState } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
   const fileInputRef = useRef(null);
   const [mangaTitle, setMangaTitle] = useState(title);
   const [chapterNumber, setChapterNumber] = useState("");
   const [chapterTitle, setChapterTitle] = useState("");
+  const [language, setLanguage] = useState("");
   const [images, setImages] = useState([]);
+
+  const languages = [
+    { name: "United States", code: "en" },
+    { name: "Japan", code: "jp" },
+    { name: "Vietnam", code: "vi" },
+    { name: "France", code: "fr" },
+    { name: "Spain", code: "es" },
+    { name: "Germany", code: "de" },
+    { name: "South Korea", code: "ko" },
+    { name: "China", code: "zh" },
+    { name: "Thailand", code: "th" },
+  ];
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,12 +44,13 @@ const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
     });
   };
 
-  
+
   const handleReset = () => {
-    setMangaTitle("");
+    setMangaTitle(title);
     setChapterNumber("");
     setChapterTitle("");
-    setImages([]);
+    setLanguage(""),
+      setImages([]);
     if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
@@ -44,12 +59,17 @@ const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
     setIsLoading(true);
 
     if (!chapterNumber) {
-      alert("Please input chapter number");
+      toast.error("Please input chapter number");
+      return;
+    }
+
+    if (!language) {
+      toast.error("Please choose the translated language for this chapter");
       return;
     }
 
     if (images.length === 0) {
-      alert("Please upload chapter");
+      toast.error("Please upload chapter");
       return;
     }
 
@@ -57,6 +77,7 @@ const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
     formData.append("manga_title", mangaTitle);
     formData.append("chapter_number", chapterNumber);
     formData.append("chapter_title", chapterTitle);
+    formData.append("translatedLanguage", language);
 
     images.forEach((img) => {
       formData.append("pages", img.file);
@@ -67,12 +88,12 @@ const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
-      alert(`✅ Upload success ${res.data.pages_uploaded} page!`);
+      toast.success(`Upload success ${res.data.pages_uploaded} page!`);
       onClose();
       handleReset();
     } catch (err) {
       console.error(err);
-      alert("❌ Upload fail");
+      toast.error("Upload fail");
     } finally {
       setIsLoading(false);
     }
@@ -118,9 +139,9 @@ const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
                     {images.length > 0 ? (
                       <div className="w-full grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-56 overflow-y-auto p-2">
                         {images.map((img, idx) => (
-                          <div 
-                                key={idx}
-                                className="relative group">
+                          <div
+                            key={idx}
+                            className="relative group">
                             <img
                               src={img.preview}
                               alt={`preview-${idx}`}
@@ -185,6 +206,20 @@ const UploadChapterModal = ({ uploadChapterModalRef, onClose, title }) => {
                     placeholder="Chapter Title (optional)"
                     className="w-full bg-[#333333] text-[#E5E5E5] px-4 py-3 rounded outline-none focus:ring-2 focus:ring-[#E50914] text-sm"
                   />
+                  <select
+                    name="language"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="w-full bg-[#333333] text-[#E5E5E5] px-4 py-3 rounded outline-none focus:ring-2 focus:ring-[#E50914] text-sm"
+                    required
+                  >
+                    <option value="" disabled>Select Language</option>
+                    {languages.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

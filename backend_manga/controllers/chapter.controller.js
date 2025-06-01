@@ -108,7 +108,8 @@ export const fetchChapterList = async (req, res) => {
 const fetchChapterByIDFromDB = async (id) => {
   const [rows] = await db.execute(
     `SELECT c.chapter_id, c.chapter_number, c.title AS chapter_title, c.upload_date, c.translated_language,
-            c.uploader_id, m.manga_id, m.title AS manga_title, u.username AS uploader_name
+            c.uploader_id, m.manga_id, m.title AS manga_title, u.username AS uploader_name,
+            m.moviepage_id
      FROM Chapter c
      JOIN Manga m ON c.manga_id = m.manga_id
      JOIN Users u ON c.uploader_id = u.userId
@@ -130,6 +131,7 @@ const fetchChapterByIDFromDB = async (id) => {
     uploaderName: chapter.uploader_name,
     mangaID: chapter.manga_id,
     mangaTitle: chapter.manga_title,
+    moviePageID: chapter.moviepage_id
   };
 };
 const fetchChapterByIDFromAPI = async (id) => {
@@ -371,7 +373,7 @@ export const fetchChapterReader = async (req, res) => {
 // Add chapter
 export const addChapter = async (req, res) => {
   try {
-    const { manga_id, chapter_number, title } = req.body;
+    const { manga_id, chapter_number, chapter_title, translatedLanguage } = req.body;
     const uploader_id = req.user.userId;
 
     const [existingChapters] = await db.execute(
@@ -386,15 +388,15 @@ export const addChapter = async (req, res) => {
     }
 
     const [chapterResult] = await db.execute(
-      "INSERT INTO Chapter (manga_id, chapter_number, title, uploader_id) VALUES (?, ?, ?, ?)",
-      [manga_id, chapter_number, title || null, uploader_id]
+      "INSERT INTO Chapter (manga_id, chapter_number, title, translated_language, uploader_id) VALUES (?, ?, ?, ?, ?)",
+      [manga_id, chapter_number, chapter_title || null, translatedLanguage, uploader_id]
     );
 
     const chapter_id = chapterResult.insertId;
 
     const files = req.files.pages;
     if (!files || files.length === 0) {
-      return res.status(400).json({ message: "Chưa có ảnh trang nào được upload" });
+      return res.status(400).json({ message: "No image is ready to upload" });
     }
 
     const insertPagesPromises = files.map((file, index) =>
@@ -462,7 +464,7 @@ export const getLatestChapInfo = async (req, res) => {
 };
 
 export const deleteChapter = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
   try {
     await db.execute(`DELETE FROM Page WHERE chapter_id = ?`, [id]);

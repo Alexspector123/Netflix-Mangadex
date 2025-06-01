@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from "react-hot-toast";
 
 const UploadMangaModal = ({ uploadMangaModalRef, onClose }) => {
     const { id } = useParams();
@@ -65,7 +66,7 @@ const UploadMangaModal = ({ uploadMangaModalRef, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        
         const data = new FormData();
         data.append("title", formData.title);
         data.append("authorName", formData.authorName);
@@ -83,17 +84,16 @@ const UploadMangaModal = ({ uploadMangaModalRef, onClose }) => {
                 body: data,
             });
             if (response.ok) {
-                // Optionally show a success message
-                alert("Manga uploaded successfully!");
+                toast.success("Manga uploaded successfully!");
+                window.location.reload();
                 onClose();
                 handleReset();
             } else {
-                // Optionally show an error message
                 const error = await response.json();
-                alert(error.message || "Upload failed");
+                toast.error(error.message || "Upload failed");
             }
         } catch (err) {
-            alert("Network error: " + err.message);
+            toast.error("Network error: " + err.message);
         } finally {
             setIsLoading(false);
         }

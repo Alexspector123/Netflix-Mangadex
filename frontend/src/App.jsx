@@ -35,18 +35,19 @@ function App() {
 
 	const location = useLocation();
 
-	const noFooterPaths = ['/login', '/signup', '/auth', '/chapter'];
-  	const isFooterVisible = !noFooterPaths.includes(location.pathname);
+	const noFooterPaths = ['/auth', '/chapter'];
+
+	const isFooterVisible = !noFooterPaths.some(path => location.pathname.startsWith(path));
 
 	const { darkMode } = useUIStore();
 
 	useEffect(() => {
 		authCheck();
 	}, [authCheck]);
-	
+
 	useEffect(() => {
 		document.documentElement.classList.toggle("dark", darkMode);
-	  }, [darkMode]);
+	}, [darkMode]);
 
 	if (isCheckingAuth) {
 		return (
@@ -62,13 +63,13 @@ function App() {
 		<>
 			<Routes>
 				<Route path='/' element={<HomePage />} />
-				<Route path='/auth' element={!user ? <AuthPage /> : <Navigate to = {"/"} />} />
+				<Route path='/auth' element={!user ? <AuthPage /> : <Navigate to={"/"} />} />
 				<Route path='/watch/:id' element={user ? <WatchPage /> : <Navigate to={"/auth"} />} />
 				<Route path='/search' element={user ? <SearchPage /> : <Navigate to={"/auth"} />} />
-				<Route path='/profile' element={<Profile/>} />
-				<Route path='/people' element={user  ? <PeoplePage /> : <Navigate to="/auth" />} />
+				<Route path='/profile' element={<Profile />} />
+				<Route path='/people' element={user ? <PeoplePage /> : <Navigate to="/auth" />} />
 				<Route path='/people/:id' element={user ? <PeopleDetails /> : <Navigate to="/auth" />} />
-				<Route path='/notifications' element={<NotificationsPage/>} />
+				<Route path='/notifications' element={<NotificationsPage />} />
 				<Route path='/history' element={user ? <SearchHistoryPage /> : <Navigate to={"/auth"} />} />
 				<Route path='/favourite' element={user ? <FavouritesPage /> : <Navigate to={"/auth"} />} />
 				<Route path='/*' element={<NotFoundPage />} />
@@ -77,8 +78,8 @@ function App() {
 					<Route path=":id/:page" element={<ChapPage />} />
 				</Route>
 				<Route path="/manage" element={<ChapManageLayout />}>
-					<Route index element={<ChapterManagerPage />} /> 
-					<Route path=":id/:idc" element={<ChapterEditPage />}/>
+					<Route index element={<ChapterManagerPage />} />
+					<Route path=":id/:idc" element={<ChapterEditPage />} />
 				</Route>
 			</Routes>
 

@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
     const userId = req.user?.userId;
 
     if (!mangaTitle || !chapterNumber) {
-      throw new Error("manga_title và chapter_number là bắt buộc");
+      throw new Error("manga_title and chapter_number are undefined");
     }
 
     let url = `manga/${mangaTitle}/chapter_${chapterNumber}/${userId}`;
@@ -21,10 +21,9 @@ const storage = new CloudinaryStorage({
       url = `manga/${mangaTitle}/Oneshot/${userId}`;
     }
 
-    // Tìm manga_id từ title
     const [rows] = await db.execute("SELECT manga_id FROM Manga WHERE title = ?", [mangaTitle]);
     if (rows.length === 0) {
-      throw new Error("Không tìm thấy manga với title đã cung cấp");
+      throw new Error("Not found any manga from this title");
     }
 
     req.body.manga_id = rows[0].manga_id;

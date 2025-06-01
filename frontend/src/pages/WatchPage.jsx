@@ -12,13 +12,17 @@ import { formatReleaseDate } from "../utils/dateFunction";
 
 import Navbar from "../components/Navbar";
 import WatchPageSkeleton from "../components/skeletons/WatchPageSkeleton";
-import useChapterList from "../hooks/manga/useChapterList";
-import useChapterListDB from "../hooks/manga/useChapterListDB";
+
 import ReadModal from "../components/modals/ReadModal";
 import UploadChapterModal from "../components/modals/UploadChapterModal";
+import UploadMangaModal from "../components/modals/UploadMangaModal.jsx";
+
+import useChapterList from "../hooks/manga/useChapterList";
+import useChapterListDB from "../hooks/manga/useChapterListDB";
 
 import { BiNavigation } from "react-icons/bi";
 import { GrUpload } from "react-icons/gr";
+import { LuBookUp } from "react-icons/lu";
 
 const WatchPage = () => {
 	const { id } = useParams();
@@ -34,6 +38,7 @@ const WatchPage = () => {
 	const [isFavourite, setIsFavourite] = useState(false);
 
 	const [mangaData, SetMangaData] = useState({ manga: [] });
+	  const [showUploadMangaModal, setShowUploadMangaModal] = useState(false);
 	const [showReadModal, setShowReadModal] = useState(false);
 	const [showUploadChapterModal, setShowUploadChapterModal] = useState(false);
 
@@ -56,6 +61,21 @@ const WatchPage = () => {
 	}, []);
 
 	// For upload manga modal
+		const uploadMangaModalRef = useRef();
+	useEffect(() => {
+		const handleClickOutsideDesktop = (e) => {
+			if (uploadMangaModalRef.current && uploadMangaModalRef.current.contains(e.target)) {
+				setShowUploadMangaModal(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutsideDesktop);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutsideDesktop);
+		};
+	}, []);
+
+	// For upload chapter modal (after find out there are manga in db)
 	const uploadChapterModalRef = useRef();
 	useEffect(() => {
 		const handleClickOutsideDesktop = (e) => {
@@ -154,14 +174,14 @@ const WatchPage = () => {
 
 	useEffect(() => {
 		const title = content?.title || content?.name || "";
+		const mainid = content?.id;
 		const getManga = async () => {
 			if (!title.trim()) {
 				SetMangaData({ manga: [] });
 				return;
 			}
 			try {
-				const res = await axios.get(`/api/v2/manga/search?query=${title}`);
-				console.log("res.data ", res.data);
+				const res = await axios.get(`/api/v2/manga/search?query=${title}&id=${mainid}`);
 				SetMangaData({
 					dbResults: res.data.dbResults || [],
 					apiResults: res.data.apiResults || [],
@@ -221,24 +241,23 @@ const WatchPage = () => {
 			}
 		}
 	};
-
 	const handleUploadChapterClick = async () => {
 		const mangaTitle = content.title || content.name;
 		if (!mangaTitle) {
-			alert("No manga title found.");
+			toast.error("No manga title found.");
 			return;
 		}
 		try {
-			const res = await axios.get(`/api/v2/manga/search?query=${encodeURIComponent(mangaTitle)}&source=db`);
+			const res = await axios.get(`/api/v2/manga/search?query=${encodeURIComponent(mangaTitle)}&source=db&id=${content.id}`);
 			const dbResults = res.data?.dbResults || [];
 			const found = dbResults.some(manga => manga.title.toLowerCase() === mangaTitle.toLowerCase());
 			if (!found) {
-				alert("This manga is not in the database. Please upload the manga first.");
+				toast.error("This manga is not in the database. Please upload the manga first.");
 				return;
 			}
 			setShowUploadChapterModal(true);
 		} catch (err) {
-			alert("Error checking manga in database.");
+			toast.error("Error checking manga in database.");
 		}
 	};
 
@@ -265,6 +284,7 @@ const WatchPage = () => {
 	return (
 		<div className='transition-all duration-200'>
 			{showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={combinedChapters} />}
+				      {showUploadMangaModal && <UploadMangaModal uploadMangaModalRef={uploadMangaModalRef} onClose={() => setShowUploadMangaModal(false)}/>}
 			{showUploadChapterModal && <UploadChapterModal uploadChapterModalRef={uploadChapterModalRef} onClose={() => setShowUploadChapterModal(false)} title={content.title || content.name} />}
 			<div
 				className="bg-gradient-to-b from-black to-gray-900 min-h-screen text-white"
@@ -497,7 +517,8 @@ const WatchPage = () => {
 					)}
 
 					{/* Upload Button */}
-					<button className="bg-red-600 hover:bg-red-700
+					{mangaData?.dbResults?.length !== 0 ? (
+						<button className="bg-red-600 hover:bg-red-700
 						p-4
 						text-lg
 						text-white font-semibold
@@ -506,10 +527,26 @@ const WatchPage = () => {
 						transition-all duration-200
 						mx-auto 2xl:ml-6
 						"
-						onClick={handleUploadChapterClick}
-					>
-						Upload<GrUpload className="text-xl inline ml-2" />
-					</button>
+							onClick={handleUploadChapterClick}
+						>
+							Upload Chapter<GrUpload className="text-xl inline ml-2" />
+						</button>
+					) : (
+						<button className="bg-red-600 hover:bg-red-700
+						p-4
+						text-lg
+						text-white font-semibold
+						cursor-pointer
+						rounded
+						transition-all duration-200
+						mx-auto 2xl:ml-6
+						"
+							onClick={() => setShowUploadMangaModal(true)}
+						>
+							Upload Manga<LuBookUp className="text-xl inline ml-2" />
+						</button>
+					)}
+
 
 					{/* Cast Information */}
 					{cast.length > 0 && (

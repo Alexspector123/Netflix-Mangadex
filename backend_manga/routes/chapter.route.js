@@ -10,7 +10,7 @@ const parseBody = multer().none();
 // Route to fetch chapters
 router.get('/latest/info', protectRoute, getLatestChapInfo);
 router.get('/reader/:id', fetchChapterReader);
-router.post('/upload', protectRoute, parseBody, uploadChapter.fields([{ name: "pages", maxCount: 150 }]), addChapter);
+router.post('/upload', protectRoute, uploadChapter.fields([{ name: "pages", maxCount: 150 }]), addChapter);
 router.post('/batch', fetchChaptersBatch);
 
 router.get('/', fetchChapterList);

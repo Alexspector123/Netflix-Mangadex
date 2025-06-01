@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 
 const AddPageModal = ({ isOpen, onClose, onAddPages }) => {
   const fileInputRef = useRef(null);
@@ -32,7 +33,7 @@ const AddPageModal = ({ isOpen, onClose, onAddPages }) => {
 
   const handleAdd = () => {
     if (images.length === 0) {
-      alert("Please select at least one image");
+      toast.success("Please select at least one image");
       return;
     }
     onAddPages(images.map((img) => img.file));

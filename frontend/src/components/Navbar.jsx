@@ -1,13 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Menu, Search, Bell, Home, Film, Tv, Heart, History, X, User, ChevronDown, Sun, Moon, AlignJustify, UsersRound, } from "lucide-react";
+import { LogOut, Menu, Search, Bell, Home, Film, Tv, Heart, History, X, User, ChevronDown, Sun, Moon, AlignJustify, UsersRound, Library, } from "lucide-react";
 import { useAuthStore } from "../store/authUser.js";
 import { useContentStore } from "../store/content.js";
 import { useUIStore } from "../store/uiStore.js";
-
-import { LuBookUp } from "react-icons/lu";
-
-import UploadMangaModal from "./modals/UploadMangaModal.jsx";
 
 const Navbar = () => {
   // State
@@ -17,7 +13,6 @@ const Navbar = () => {
   const [settingOpen, setSettingOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [showUploadMangaModal, setShowUploadMangaModal] = useState(false);
 
   const { user, logout } = useAuthStore();
   const { darkMode, toggleDark, lang, setLang } = useUIStore();
@@ -32,20 +27,6 @@ const Navbar = () => {
   const settingRef = useRef(null);
   const historyRef = useRef(null);
   const profileRef = useRef(null);
-  
-	const uploadMangaModalRef = useRef();
-	useEffect(() => {
-		const handleClickOutsideDesktop = (e) => {
-			if (uploadMangaModalRef.current && uploadMangaModalRef.current.contains(e.target)) {
-				setShowUploadMangaModal(false);
-			}
-		};
-
-		document.addEventListener("mousedown", handleClickOutsideDesktop);
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutsideDesktop);
-		};
-	}, []);
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -87,7 +68,6 @@ const Navbar = () => {
 
   return (
     <div>
-      {showUploadMangaModal && <UploadMangaModal uploadMangaModalRef={uploadMangaModalRef} onClose={() => setShowUploadMangaModal(false)}/>}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
           ? "bg-black bg-opacity-95 shadow-lg"
@@ -155,7 +135,7 @@ const Navbar = () => {
                 </button>
 
                 {historyOpen && (
-                  <div className="absolute bg-black bg-opacity-90 shadow-md rounded-md mt-1 p-1 border border-gray-800 w-36 cursor-pointer">
+                  <div className="absolute bg-black bg-opacity-90 shadow-md rounded-md mt-1 p-1 border border-gray-800 w-37 cursor-pointer">
                     {/* Favourite chỉ cho VIP */}
                     {isVip && (
                       <button
@@ -205,12 +185,6 @@ const Navbar = () => {
                       <Bell className="size-4 hover:scale-110 transition-transform" />
                       <span>Notification</span>
                     </Link>
-                    <div 
-                      className="hover:text-red-500 flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-800 rounded text-left"
-                      onClick={() => setShowUploadMangaModal(true)}>
-                      <LuBookUp className="size-4 hover:scale-110 transition-transform"/>
-                      <span>New Manga</span>
-                    </div>
                   </div>
                 )}
               </div>
@@ -237,6 +211,13 @@ const Navbar = () => {
                   >
                     <User className="size-4" />
                     <span>Profile</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/manage')}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-800 rounded text-left"
+                  >
+                    <Library className="size-4" />
+                    <span>Manage Upload</span>
                   </button>
                   <button
                     onClick={logout}
