@@ -112,13 +112,17 @@ Follow these steps to set up PHPNetflix on your machine:
    * **MongoDB**
      * Ensure your MongoDB instance is running if you need it for certain collections (e.g., upload logs).
 5. **Start the application**
-   * For development (with auto-reload):
+   * For gateway development (with auto-reload):
      ```bash
      npm run dev
      ```
-   * For production:
+   * For movie production:
      ```bash
-     npm run start
+     npm run start1
+     ```
+   * For manga production:
+     ```bash
+     npm run start2
      ```
    * Frontend (if separated):
      ```bash
