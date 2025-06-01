@@ -160,4 +160,13 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact 🤝
 * **Project Repository:** [https://github.com/Alexspector123/PHPNetflix](https://github.com/Alexspector123/PHPNetflix)
 * **Project drive:** Finantasy Web Project Report ((https://drive.google.com/drive/folders/1dxbe7CGuoiGvInFQXA26lc_PvybXgeMC?fbclid=IwY2xjawKpMIhleHRuA2FlbQIxMABicmlkETFTejMwbUp5bmRkcHgzT0JjAR7lXRcPvnTmjRA8V8nW4uU3z1AdgFwVxe00Mkg8pPAhHPmHzXoK-kSLGXxEFQ_aem_OBx9xAOt0unpHJjTFnCnbg))
-Feel free to open issues or reach out with questions and suggestions.
+
+---
+
+## 👥 About our team
+[@TrangPhan274](https://github.com/trangphan274)
+
+[@FanchonSora](https://github.com/FanchonSora)
+
+[@Alexspector123](https://github.com/Alexspector123)
+
