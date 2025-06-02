@@ -53,7 +53,8 @@ export const initializeTables = async () => {
                 chapter_id INT NOT NULL,
                 page_number INT NOT NULL,
                 image_url VARCHAR(500) NOT NULL,
-                FOREIGN KEY (chapter_id) REFERENCES Chapter(chapter_id) ON DELETE CASCADE
+                FOREIGN KEY (chapter_id) REFERENCES Chapter(chapter_id) ON DELETE CASCADE,
+                public_id VARCHAR(255);
             );
         `);
         console.log("Manga tables ensured in db.");

@@ -110,7 +110,7 @@ const ChapterEditPage = () => {
   const { chapterData, isLoading: isMangaLoading, error: ErrorManga } = useFetchChapterbyID(idc, 'db');
   const infor = chapterData?.dbResult;
 
-  const { uploadPages } = useUploadPages();
+  const { uploadPages, isUploading, errorUpLoading } = useUploadPages();
   const { updatePage } = useUpdatePage();
   const { deletePage } = useDeletePage();
 
@@ -133,7 +133,7 @@ const handleAddPages = async (files) => {
     if (result && result.data && result.data.pages) {
       setPages(prev => [...prev, ...result.data.pages]);
 
-      toast.success(`Upload Success ${result.data.pages.length} trang!`);
+      toast.success(`Upload Success ${result.data.pages.length} page!`);
     }
   } catch (error) {
     console.error(error);
@@ -244,9 +244,10 @@ const handleAddPages = async (files) => {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => setIsAddModalOpen(true)}
-                className="w-full px-4 py-2 bg-[#e50914] text-white rounded hover:bg-[#b00610] transition"
+                disabled={isUploading}
+                className={`w-full px-4 py-2 text-white rounded transition ${isUploading ? "bg-gray-600 cursor-not-allowed" : "bg-[#e50914] hover:bg-[#b00610]"}`}
               >
-                ➕ Add Page
+                {isUploading ? "Adding..." : "➕ Add Page"}
               </button>
 
               <button
@@ -264,7 +265,7 @@ const handleAddPages = async (files) => {
                 disabled={isDeleting}
                 className={`w-full px-4 py-2 rounded text-white transition ${isDeleting ? "bg-gray-600 cursor-not-allowed" : "bg-red-700 hover:bg-red-800"}`}
               >
-                {isDeleting ? "Đang xoá..." : "🗑️ Delete Chapter"}
+                {isDeleting ? "Deleting..." : "🗑️ Delete Chapter"}
               </button>
             </div>
           </div>

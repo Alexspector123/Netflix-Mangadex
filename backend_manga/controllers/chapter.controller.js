@@ -3,6 +3,8 @@ import mangadexLimiter from '../utils/rateLimiter.js';
 import toRelativeTime from '../utils/toRelativeTime.js';
 import { db } from '../config/db.js';
 
+import cloudinary from '../utils/cloudinary.js';
+
 const fetchChapterListFromDB = async (limit = 10, order = 'desc') => {
   const sortOrder = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
@@ -376,17 +378,6 @@ export const addChapter = async (req, res) => {
     const { manga_id, chapter_number, chapter_title, translatedLanguage } = req.body;
     const uploader_id = req.user.userId;
 
-    const [existingChapters] = await db.execute(
-      "SELECT chapter_id FROM Chapter WHERE manga_id = ? AND chapter_number = ? AND uploader_id = ?",
-      [manga_id, chapter_number, uploader_id]
-    );
-
-    if (existingChapters.length > 0) {
-      return res.status(409).json({
-        message: `You have uploaded chapter ${chapter_number} in this manga!`
-      })
-    }
-
     const [chapterResult] = await db.execute(
       "INSERT INTO Chapter (manga_id, chapter_number, title, translated_language, uploader_id) VALUES (?, ?, ?, ?, ?)",
       [manga_id, chapter_number, chapter_title || null, translatedLanguage, uploader_id]
@@ -401,21 +392,21 @@ export const addChapter = async (req, res) => {
 
     const insertPagesPromises = files.map((file, index) =>
       db.execute(
-        "INSERT INTO Page (chapter_id, page_number, image_url) VALUES (?, ?, ?)",
-        [chapter_id, index + 1, file.path]
+        "INSERT INTO Page (chapter_id, page_number, image_url, public_id) VALUES (?, ?, ?, ?)",
+        [chapter_id, index + 1, file.path, file.filename || file.public_id]
       )
     );
 
     await Promise.all(insertPagesPromises);
 
     res.status(201).json({
-      message: "Upload chapter thành công",
+      message: "Upload chapter success",
       chapter_id,
       pages_uploaded: files.length,
     });
   } catch (error) {
     console.error("Upload chapter error:", error);
-    res.status(500).json({ message: "Lỗi khi upload chapter", error: error.message });
+    res.status(500).json({ message: "Error when upload chapter", error: error.message });
   }
 }
 
@@ -467,18 +458,35 @@ export const deleteChapter = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await db.execute(`DELETE FROM Page WHERE chapter_id = ?`, [id]);
+    const [[chapterInfo]] = await db.execute(
+      `SELECT m.title AS manga_title, c.chapter_number, c.uploader_id 
+       FROM Chapter c
+       JOIN Manga m ON c.manga_id = m.manga_id
+       WHERE c.chapter_id = ?`,
+      [id]
+    );
 
+    if (!chapterInfo) {
+      return res.status(404).json({ error: "Chapter is not existed" });
+    }
+
+    const { manga_title, chapter_number, uploader_id } = chapterInfo;
+
+    const folderPath = `manga/${manga_title}/chapter_${chapter_number}/${uploader_id}`;
+
+    await cloudinary.api.delete_resources_by_prefix(folderPath);
+
+    await db.execute(`DELETE FROM Page WHERE chapter_id = ?`, [id]);
     const [result] = await db.execute(`DELETE FROM Chapter WHERE chapter_id = ?`, [id]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Chapter is no existed" });
+      return res.status(404).json({ error: "Chapter is not existed" });
     }
 
     res.json({ message: "Delete chapter success" });
   } catch (error) {
-    console.error("Eror when delete chapter:", error);
-    res.status(500).json({ error: "Delete chapter failed" });
+    console.error("Error when delete chapter:", error);
+    res.status(500).json({ error: "Delete chapter fail" });
   }
 };
 

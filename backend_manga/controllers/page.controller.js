@@ -1,5 +1,7 @@
 import { db } from '../config/db.js';
 
+import cloudinary from '../utils/cloudinary.js';
+
 export const getPageList = async (req, res) => {
   try {
     const { chapterId } = req.params;
@@ -34,29 +36,24 @@ export const createPages = async (req, res) => {
 
     let nextPageNumber = existingPages[0].maxPage ? existingPages[0].maxPage + 1 : 1;
 
-    const newPages = req.files.map((file, index) => ({
-      chapter_id: chapterId,
-      page_number: nextPageNumber + index,
-      image_url: file.path,
-    }));
-
     const insertPromises = req.files.map((file, index) => {
       const imageUrl = file.path;
+      const publicId = file.filename || file.public_id;
+
       return db.execute(
-        `INSERT INTO Page (chapter_id, page_number, image_url) VALUES (?, ?, ?)`,
-        [chapterId, nextPageNumber + index, imageUrl]
+        `INSERT INTO Page (chapter_id, page_number, image_url, public_id) VALUES (?, ?, ?, ?)`,
+        [chapterId, nextPageNumber + index, imageUrl, publicId]
       );
     });
 
     await Promise.all(insertPromises);
 
-    return res.status(201).json({ message: "Upload success", pages: newPages });
+    return res.status(201).json({ message: "Upload success", pagesCount: req.files.length });
   } catch (error) {
     console.error('Create pages error:', error);
     return res.status(500).json({ message: 'Server error when create pages' });
   }
 };
-
 export const updatePage = async (req, res) => {
   try {
     const { pageId } = req.params;
@@ -83,6 +80,21 @@ export const updatePage = async (req, res) => {
 export const deletePage = async (req, res) => {
   try {
     const { pageId } = req.params;
+
+    const [[page]] = await db.execute(
+      `SELECT public_id FROM Page WHERE page_id = ?`,
+      [pageId]
+    );
+
+    if (!page) {
+      return res.status(404).json({ message: "Page not exists" });
+    }
+
+    const publicId = page.public_id;
+
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId);
+    }
 
     const [result] = await db.execute(
       `DELETE FROM Page WHERE page_id = ?`,
